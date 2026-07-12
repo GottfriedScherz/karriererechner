@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karriererechner · Deutsche Vermögensberatung</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f0f4f8;
+    --panel: #ffffff;
+    --panel2: #e8eef5;
+    --line: #c8d5e3;
+    --text: #1a2a3a;
+    --muted: #6b8099;
+    --accent: #355f8f;
+    --accent-light: #4a7ab5;
+    --grey: #b2b2b2;
+    --warn: #c0392b;
+    --warn-light: #e74c3c;
+    --warn-bg: #fdf2f2;
+    --warn-border: #f5c6c6;
+    --good: #27ae60;
+    --good-bg: #f0f8f0;
+    --good-border: #a8d5a8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: 'Lato', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 0;
+  }
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  header{
+    background: var(--accent);
+    color: #fff;
+    padding: 32px 24px 28px;
+    margin: -40px -24px 32px;
+    border-radius: 0 0 8px 8px;
+  }
+  .eyebrow{
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 8px;
+  }
+  h1{
+    font-size: 30px;
+    margin: 0 0 8px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    color: #fff;
+  }
+  .sub{
+    color: rgba(255,255,255,0.75);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 70ch;
+    font-weight: 300;
+  }
+  .card{
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(53,95,143,0.08);
+    margin-bottom: 20px;
+  }
+  .grid{ display:grid; gap: 18px; }
+  .field{ display:flex; flex-direction: column; gap: 6px; }
+  label{
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  input, select{
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 9px 10px;
+    font-size: 14px;
+    font-family: 'Lato', Arial, sans-serif;
+    width: 100%;
+  }
+  input:focus, select:focus{
+    outline: none;
+    border-color: var(--accent);
+    background: #fff;
+  }
+  .row2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 540px){
+    .row2{ grid-template-columns: 1fr; }
+  }
+  button.primary{
+    margin-top: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-family: 'Lato', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  button.primary:hover{ background: var(--accent-light); }
+
+  #formFehler{ display:none; background:#fdf2f2; border:1px solid #f5c6c6; border-radius:6px; padding:12px 16px; color:#c0392b; font-size:14px; font-weight:700; margin-top:8px; }
+
+  .result{ display:none; }
+  .result.visible{ display:block; }
+
+  /* Jahres-Tabs */
+  .year-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .year-tab{
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Lato', Arial, sans-serif;
+  }
+  .year-tab.active{ background: var(--accent); border-color: var(--accent); color:#fff; }
+
+  /* Tabelle */
+  .table-scroll{ overflow-x:auto; border-radius: 8px; }
+  table.plan{
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 980px;
+    font-size: 12.5px;
+  }
+  table.plan th, table.plan td{
+    border: 1px solid var(--line);
+    padding: 6px 6px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  table.plan th.rowlabel, table.plan td.rowlabel{
+    text-align: left;
+    background: var(--panel2);
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 230px;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    font-size: 12px;
+  }
+  table.plan thead th{
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+  table.plan thead th.rowlabel{ background: var(--accent); color:#fff; }
+  table.plan .hb-tag{ display:block; font-weight:300; font-size:10px; color: rgba(255,255,255,0.75); margin-top:2px; }
+  table.plan select, table.plan input[type=number]{
+    width: 100%;
+    padding: 4px 4px;
+    font-size: 12px;
+    min-width: 90px;
+  }
+  table.plan input[type=text]{
+    width: 100%;
+    padding: 4px 4px;
+    font-size: 12px;
+  }
+  table.plan td.empty{ background: #f5f7fa; color: var(--grey); }
+  table.plan td.calc{ font-variant-numeric: tabular-nums; }
+  tr.section-row td.rowlabel{ background: var(--accent); color:#fff; }
+  tr.total-row td{ background: var(--panel2); font-weight:900; color: var(--accent); font-size: 13px; }
+  tr.total-row td.rowlabel{ color: var(--accent); }
+
+  .addbtn{
+    background: var(--good);
+    color:#fff;
+    border:none;
+    border-radius: 4px;
+    width: 26px; height: 26px;
+    font-size: 15px;
+    font-weight:900;
+    cursor:pointer;
+    line-height: 1;
+  }
+  .addbtn:hover{ background:#219150; }
+  .delbtn{
+    background: var(--warn);
+    color:#fff;
+    border:none;
+    border-radius: 4px;
+    width: 20px; height:20px;
+    font-size: 12px;
+    font-weight:900;
+    cursor:pointer;
+    line-height:1;
+    margin-left: 6px;
+    flex-shrink:0;
+  }
+  .partner-name-cell{ display:flex; align-items:center; gap:4px; }
+  .partner-name-cell input{ flex:1; }
+
+  .infobtn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:15px; height:15px; border-radius:50%;
+    background: var(--accent); color:#fff; border:none;
+    font-size:10px; font-style:italic; font-family: Georgia, serif; font-weight:700;
+    cursor:pointer; margin-left:4px; flex-shrink:0; padding:0; line-height:1;
+  }
+  .infobtn:hover{ background: var(--accent-light); }
+  .row-desc{
+    font-size:10.5px; font-weight:400; color:var(--muted);
+    margin-top:4px; line-height:1.4; text-transform:none; letter-spacing:normal;
+    background: #fff; border: 1px solid var(--line); border-radius:4px; padding:6px 8px;
+  }
+  .rowlabel-flex{ display:flex; align-items:flex-start; justify-content:space-between; gap:4px; }
+  .expand-toggle{
+    background:none; border:none; color:var(--accent); cursor:pointer;
+    font-size:11px; margin-right:4px; padding:0; flex-shrink:0;
+  }
+  tr.partner-info-row td.rowlabel{ font-weight:400; font-style:italic; color:var(--muted); font-size:11px; }
+  tr.partner-info-row td.calc{ font-style:italic; color:var(--muted); }
+  tr.zk-sub-row td.rowlabel{ padding-left:20px; font-weight:400; color:var(--muted); font-size:11.5px; }
+  tr.zk-sub-row td{ background:#fbfcfd; }
+
+  /* Zusammenfassung */
+  .gehalt-block {
+    background: var(--accent);
+    border-radius: 8px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+  .gehalt-block .block-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .gehalt-block .value-main {
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .gehalt-block .value-main span { font-size: 16px; font-weight: 300; }
+  .gehalt-block .value-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+  .year-summary-grid{
+    display:grid;
+    grid-template-columns: repeat(4,1fr);
+    gap:10px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 700px){ .year-summary-grid{ grid-template-columns: repeat(2,1fr); } }
+  .year-summary-item{
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .year-summary-item.active{ background: #eef4fb; border-color: var(--accent); }
+  .year-summary-item .ys-label{ font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:700; margin-bottom:4px; }
+  .year-summary-item .ys-value{ font-size:18px; font-weight:900; color:var(--accent); }
+
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .detail-table{
+    width:100%;
+    font-size: 13px;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+  }
+  .detail-table td{
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-table td:first-child{ color: var(--muted); }
+  .detail-table td:last-child{ text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  .footnote{
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 8px;
+    font-weight: 300;
+  }
+  .footnote ul{ margin: 6px 0; padding-left: 18px; }
+  .footnote li{ margin-bottom: 4px; }
+  .footnote strong{ color: var(--text); }
+
+  /* Drucken */
+  .printbtn{
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-family: 'Lato', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .printbtn:hover{ background: #eef4fb; }
+  #printArea{ display:none; }
+  @media print{
+    @page{ size: A4 landscape; margin: 10mm; }
+    body *{ visibility: hidden; }
+    #printArea, #printArea *{ visibility: visible; }
+    #printArea{
+      display:block;
+      position: absolute; top:0; left:0; width:100%;
+    }
+    .print-page{ page-break-after: always; }
+    .print-page:last-child{ page-break-after: auto; }
+    .print-page h2{ font-size:16px; color:#1a2a3a; margin:0 0 10px; }
+    .print-page table.plan{ font-size:10px; min-width:0; width:100%; }
+    .print-page table.plan th, .print-page table.plan td{ padding:3px 4px; }
+    .print-page table.plan td.rowlabel, .print-page table.plan th.rowlabel{ min-width:0; position:static; }
+    .print-page .expand-toggle, .print-page .infobtn, .print-page .addbtn, .print-page .delbtn{ display:none; }
+    .print-page select, .print-page input{ border:none; background:none; padding:0; -webkit-appearance:none; appearance:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Karriere &amp; Vergütung · Deutsche Vermögensberatung</div>
+    <h1>Karriererechner</h1>
+    <div style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.75); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px;">Ihr Karriere- und Einkommensmodell &middot; 4 Jahre</div>
+    <div class="sub">
+      Planen Sie Ihre Karriereentwicklung Monat für Monat &ndash; inklusive Team- und Praxisweg, Partnerstruktur mit Differenzprovision und allen Zukunftspaket-Sonderprovisionen. Ideal für das Gespräch mit Berufsstartern und Direkteinsteigern.
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="row2">
+        <div class="field">
+          <label for="einheitenProKunde">Einheiten pro Kunde</label>
+          <input type="number" id="einheitenProKunde" value="100" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="kundenProMonat">Anzahl Kunden pro Monat (eigen)</label>
+          <input type="number" id="kundenProMonat" value="4" min="0" step="1">
+        </div>
+      </div>
+    </div>
+    <div id="formFehler"></div>
+    <button class="primary" id="berechnenBtn">Karriereplan erstellen</button>
+  </div>
+
+  <div class="result" id="result">
+
+    <div class="year-tabs" id="yearTabs"></div>
+
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div class="section-title" style="margin-bottom:0;">Karriereplan &amp; Provisionsberechnung &mdash; Jahr <span id="yearLabelInline">1</span></div>
+        <button type="button" class="printbtn" id="printBtn" title="Kompletten 4-Jahres-Plan drucken (A4 Querformat, 1 Seite pro Jahr)">&#128438;&nbsp;Drucken</button>
+      </div>
+      <div class="table-scroll">
+        <table class="plan" id="planTable"></table>
+      </div>
+      <div class="footnote" style="margin-top:14px;">
+        Karrierestufen und Einheiten gelten ab dem gewählten Monat für alle Folgemonate, bis Sie eine neue Auswahl treffen. Frühere Monate bleiben unverändert. Mit dem grünen <strong>+</strong> legen Sie ab dem jeweiligen Monat einen neuen Partner an.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Jahresübersicht</div>
+      <div class="year-summary-grid" id="yearSummaryGrid"></div>
+      <div id="gesamtBanner" class="gehalt-block">
+        <div class="block-label">Gesamteinkommen über 4 Jahre</div>
+        <div class="value-main" id="gesamt4j">&ndash;</div>
+        <div class="value-sub" id="gesamt4jSub">&ndash;</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Provisionsarten &mdash; Jahressumme Jahr <span id="yearLabelInline2">1</span></div>
+      <table class="detail-table" id="breakdownTable"></table>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Weitere Sonderleistungen (nicht berechnet)</div>
+      <div class="footnote">
+        Neben den oben berechneten Provisionsarten gibt es je nach Karrierestufe und Sparten-Mix weitere Sonderleistungen, die dieser Rechner aus Komplexitätsgründen nicht abbildet. Sprechen Sie hierzu bitte Ihre Direktion an:
+        <ul>
+          <li>Allfinanz-Bonus Österreich</li>
+          <li>Kunden-Leistungsbonus</li>
+          <li>Familien-Absicherungsplan</li>
+          <li>Krankenhaustagegeld</li>
+          <li>Versorgungsplan</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Annahmen &amp; Vereinfachungen</div>
+      <div class="footnote">
+        Diese Berechnung ist eine unverbindliche Annäherung auf Basis Ihrer Angaben und der freiwilligen Sonderprovisionen gemäß "Leistung lohnt sich 2026" sowie des Zukunftspakets (Stand 2026). Folgende Vereinfachungen wurden bewusst vorgenommen:
+        <ul>
+          <li><strong>Keine EQF-Prüfung:</strong> Qualitätskennzahlen (EQF Eigen/Gruppe) und Bestandsfähigkeits-Nachprüfungen werden nicht abgebildet &ndash; es wird unterstellt, dass alle Geschäfte bestandsfähig bleiben.</li>
+          <li><strong>Kunden vs. Einheiten:</strong> Einzugeben ist Ihre monatliche <em>Kundenanzahl</em>; die Einheiten werden automatisch als Kunden &times; Einheiten pro Kunde berechnet (nicht mehr direkt überschreibbar). GENERALI Neukundenbonus und Kundenbestandsbonus verwenden direkt diese Kundenanzahl, alle übrigen Provisionen die daraus berechneten Einheiten.</li>
+          <li><strong>GENERALI Existenzgründer-Bonus PLUS:</strong> Die reale Bedingung verlangt 20 Einheiten je Sparte (Leben, Sach, Kranken) pro Quartal getrennt. Hier vereinfacht zu 60 Einheiten Gesamt pro Quartal.</li>
+          <li><strong>GENERALI Neukundenbonus:</strong> Es wird die volle Spartenvergütung (250&nbsp;€/Neukunde) unterstellt; Jahresbezug ist das Planjahr (Monat 1&ndash;12, 13&ndash;24 usw.), nicht das Kalenderjahr. Wird laufend in dem Monat ausgezahlt, in dem der jeweilige Neukunde (ab dem 6. im Planjahr) gewonnen wird, kumulativer Jahresdeckel 10.000&nbsp;€.</li>
+          <li><strong>Folgeprovision Investment &amp; Sachgeschäft (ab AL, Annahme):</strong> Investment: 100&nbsp;€/Monat Fondssparplan je Kunde erzeugen dauerhaft 0,2&nbsp;Einheiten Folge/Monat, die sich mit jedem neuen Kunden weiter aufbauen. Sachgeschäft: in den ersten 24&nbsp;Monaten bereits in den regulären Monatseinheiten enthalten, ab dem 25.&nbsp;Monat nach Kundengewinnung zusätzlich 1&nbsp;Einheit Folge/Monat je Kunde, dauerhaft. Beides wird erst ab Erreichen der Stufe Agenturleiter/-in (bzw. höher) ausgezahlt und mit dem jeweils <em>aktuellen</em> Provisionssatz bewertet (nicht dem Satz zum Zeitpunkt der Kundengewinnung). Für Partner wird die Kundenanzahl vereinfacht aus deren Einheiten-Eingabe über das Verhältnis "Einheiten pro Kunde" abgeleitet, da Partner keine eigene Kunden-Eingabe haben. Die "Gruppe"-Komponente folgt derselben kaskadierenden Logik wie die normale Differenzprovision. Erfolgsprovision, Förderprovision, Ausbilder- und Elite-Club-Bonus basieren weiterhin ausschließlich auf den regulären (nicht den Folge-)Einheiten.</li>
+          <li><strong>Karrierebonus / Beförderungsbonus:</strong> Die laufende monatliche Mindestleistungsprüfung wird nicht abgebildet &ndash; es zählt nur die jeweils aktuelle Karrierestufe. Für Stufen oberhalb HGS bzw. P4 (RD1, RD2, D, P5&ndash;P7) sind keine offiziellen Sätze bekannt; es wird der höchste bekannte Satz (HGS-Niveau) fortgeschrieben.</li>
+          <li><strong>Kundenbestandsbonus:</strong> Es wird unterstellt, dass alle in den ersten 36 Monaten gewonnenen Neukunden im Bestand bleiben (keine Stornos/Abgänge).</li>
+          <li><strong>Ausbilder-Bonus:</strong> Gilt für direkte (4&nbsp;€/Einheit) und indirekte (1,33&nbsp;€/Einheit, unabhängig von der Tiefe) neue Agenturleiter/-innen in Ihrer gesamten Struktur, sobald diese in ihren ersten 36 Hauptberufs-Monaten kumuliert mindestens 600&nbsp;Einheiten Netto Neu Eigen erreicht haben. Die "Tiefe" ergibt sich aus dem von Ihnen zugewiesenen Betreuer je Partner.</li>
+          <li><strong>Elite-Club-Bonus:</strong> Setzt voraus, dass Sie selbst die Team-Stufe RGS oder höher erreicht haben (Praxis-Stufe allein genügt nicht). Danach für alle Partner auf VBA-Stufe in der gesamten Struktur mit dem Basissatz von 1,50&nbsp;€/Einheit berechnet &ndash; ohne Prüfung einer zusätzlichen Club-Mitgliedschaft (Admirals-/Kapitäns-Club-Sätze von 1,75&ndash;2,00&nbsp;€ und die 36-Monats-Fensterregel für "neue Partner" wurden nicht berücksichtigt).</li>
+          <li><strong>Förderprovision:</strong> Vereinfacht auf Basis der rollierenden 12-Monats-Gruppensumme (gesamte Struktur ab VBA) des laufenden Monats berechnet, ohne die reale Quartalsverzögerung und die 40&nbsp;%-Deckelung je direkter Struktur.</li>
+          <li><strong>Leistungs-Bonus Praxis (ab P5/RD1):</strong> Der im Vorquartal ermittelte Quartalsbetrag (0,50&nbsp;€ bzw. 1,00&nbsp;€ je Einheit Netto Neu Eigen) wird vereinfacht gleichmäßig auf die 3 Monate des Folgequartals verteilt, statt &ndash; wie in der Praxis üblich &ndash; ggf. anders getaktet ausgezahlt zu werden. Die EQF-Bedingung (EQF Eigen der letzten 12 Monate ≤ 10) wird wie alle anderen EQF-Prüfungen in diesem Rechner nicht abgebildet.</li>
+          <li><strong>Differenzprovision (kaskadierend):</strong> Sie erhalten Differenzprovision nur auf Ihre <em>direkten</em> Partner (Betreuer&nbsp;=&nbsp;Ich), jeweils auf das Gesamtvolumen von dessen kompletter Unterstruktur. Zwischengeschaltete Partner erhalten ihrerseits ihre eigene Differenzprovision auf ihre direkte Unterstruktur &ndash; einsehbar über "Partner-Einkommen (Info)" bei diesem Partner. So wird jede Stufe der Struktur nur einmal vergütet.</li>
+          <li><strong>Existenzgründer-Bonus:</strong> Zählt laut Vertriebsunterlagen NICHT zum Zukunftspaket, sondern gilt eigenständig für jede/-n neue/-n Agenturleiter/-in (bzw. höhere Stufe) in den ersten 36 Hauptberufsmonaten &ndash; daher als eigene Zeile ausgewiesen, getrennt vom "Zukunftspaket-Bonus".</li>
+          <li><strong>Erfolgsprovision:</strong> Wird auf Basis der Einheiten des jeweiligen Monats geprüft (statt des Durchschnitts der letzten 3 Monate gemäß Originalregel). Für Partner wird die Erfolgsprovision zusammen mit deren eigener Differenzprovision unter "Partner-Einkommen (Info)" ausgewiesen &ndash; das sind eigene Einkommen der Partner und fließen nicht in Ihr "Gesamt Monat" ein.</li>
+          <li><strong>GENERALI Neukundenbonus:</strong> Wird als Jahressumme berechnet und vereinfacht im letzten Monat (12/24/36/48) des jeweiligen Planjahres innerhalb des "Zukunftspaket-Bonus" angesetzt, statt laufend über das Jahr verteilt.</li>
+          <li><strong>Alle Beträge sind Bruttoprovisionen</strong> vor Steuern und Sozialversicherung.</li>
+          <li>Kundenbestands-, Karriere- und Beförderungsbonus (Zukunftspaket) werden nur für Ihre eigene Existenzgründerphase berechnet, nicht für die Ihrer Partner.</li>
+        </ul>
+        Für eine verbindliche Berechnung auf Basis Ihres echten Vertrags wenden Sie sich bitte an Ihre Direktion bzw. an das VB-Infonet.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+// ============================================================
+// KONFIGURATION
+// ============================================================
+const N = 48; // Planungshorizont in Monaten (4 Jahre)
+
+const STAGES = {
+  VM:  { label:'Vertrauensmitarbeiter/-in (VM)', rate:2.00, hauptberuf:false, ladder:'zweit' },
+  VBA: { label:'VB-Assistent/-in (VBA)',          rate:4.00, hauptberuf:false, ladder:'zweit' },
+  AL:  { label:'Agenturleiter/-in (AL)',          rate:9.00, hauptberuf:true,  ladder:'team' },
+  RGS: { label:'Regionalgeschäftsstellenleiter/-in (RGS)', rate:10.00, hauptberuf:true, ladder:'team' },
+  GS:  { label:'Geschäftsstellenleiter/-in (GS)', rate:11.00, hauptberuf:true, ladder:'team' },
+  HGS: { label:'Hauptgeschäftsstellenleiter/-in (HGS)', rate:12.00, hauptberuf:true, ladder:'team' },
+  RD1: { label:'Regionaldirektionsleiter/-in 1 (RD1)', rate:12.60, hauptberuf:true, ladder:'team' },
+  RD2: { label:'Regionaldirektionsleiter/-in 2 (RD2)', rate:13.20, hauptberuf:true, ladder:'team' },
+  D:   { label:'Direktionsleiter/-in (D)',        rate:14.00, hauptberuf:true, ladder:'team' },
+  P2:  { label:'Praxis 2 (P2)', rate:10.00, hauptberuf:true, ladder:'praxis' },
+  P3:  { label:'Praxis 3 (P3)', rate:11.00, hauptberuf:true, ladder:'praxis' },
+  P4:  { label:'Praxis 4 (P4)', rate:12.00, hauptberuf:true, ladder:'praxis' },
+  P5:  { label:'Praxis 5 (P5)', rate:12.60, hauptberuf:true, ladder:'praxis' },
+  P6:  { label:'Praxis 6 (P6)', rate:13.20, hauptberuf:true, ladder:'praxis' },
+  P7:  { label:'Praxis 7 (P7)', rate:13.60, hauptberuf:true, ladder:'praxis' },
+};
+const TEAM_IDS = ['VM','VBA','AL','RGS','GS','HGS','RD1','RD2','D'];
+const PRAXIS_IDS = ['P2','P3','P4','P5','P6','P7'];
+const ALL_IDS = TEAM_IDS.concat(PRAXIS_IDS);
+
+const KARRIEREBONUS = { AL:125, P2:125, RGS:250, P3:250, GS:375, P4:375, HGS:500 };
+const BEFOERDERUNG  = { P2:600, P3:750, P4:900, RGS:1500, GS:3000, HGS:6000 };
+// Elite-Club-Bonus gibt es erst ab Team-Stufe RGS aufwärts (reine Team-Stufen-Prüfung)
+const ELITECLUB_MIN_TEAM_IDX = TEAM_IDS.indexOf('RGS');
+
+// Erfolgsprovision: VBA (Nebenberuf, erste 12 Monate) 2,00€/Einheit ab 100 Einheiten;
+// hauptberuflich ab AL 3,50€/Einheit ab Schwelle (150/200/250 nach Zeit seit AL, 300 ab P5/RD1)
+function erfolgsprovisionAmount(stageId, units, vbaMonat, hbMonat){
+  if(!stageId) return 0;
+  if(stageId==='VBA'){
+    if(vbaMonat>=1 && vbaMonat<=12 && units>=100) return units*2.00;
+    return 0;
+  }
+  if(STAGES[stageId].hauptberuf){
+    let threshold;
+    if(HIGH_TIER_IDS.indexOf(stageId)>=0) threshold=300;
+    else if(hbMonat>36) threshold=250;
+    else if(hbMonat>24) threshold=200;
+    else threshold=150;
+    if(units>=threshold) return units*3.50;
+  }
+  return 0;
+}
+
+const fmt = (n) => (n||0).toLocaleString('de-AT', {minimumFractionDigits:0, maximumFractionDigits:0});
+const fmt2 = (n) => (n||0).toLocaleString('de-AT', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  einheitenProKunde: 100,
+  kundenProMonat: 4,
+  currentYear: 1,
+  selfTeamBP: {1:'AL'},
+  selfPraxisBP: {1:null},
+  selfKundenOverride: {},
+  partners: [], // {id, name, parentId (null=ich), startMonth, stageBP:{month:id}, unitsBP:{month:number}}
+  zkExpanded: false,
+  openInfo: {}, // key -> true/false, welche Info-Boxen aufgeklappt sind
+  partnerCollapsed: {}, // pid -> true/false, ob der Partner-Block eingeklappt ist
+  partnerIncomeOpen: {} // pid -> true/false, ob "Partner-Einkommen" aufgeklappt ist
+};
+let partnerSeq = 1;
+
+const HIGH_TIER_IDS = ['P5','P6','P7','RD1','RD2','D'];
+
+const DESCRIPTIONS = {
+  eigen: 'Ihre eigenen Einheiten zzgl. der Einheiten Ihrer direkten VM-Partner (inkl. deren evtl. vorhandener Unterstruktur), multipliziert mit Ihrem eigenen Provisionssatz (höherer Wert aus Team- und Praxisstufe).',
+  differenz: 'Kaskadierende Differenzprovision: Für jeden IHRER direkten Partner (Betreuer = Ich) ab Stufe VBA erhalten Sie Ihre Rate minus dessen Rate, multipliziert mit dem gesamten Volumen seiner Struktur (er selbst + seine komplette Unterstruktur). Zwischengeschaltete Partner erhalten ihrerseits ihre eigene Differenzprovision auf ihre direkte Unterstruktur – einsehbar über "Partner-Einkommen" bei diesem Partner. So wird jede Stufe nur einmal vergütet (keine Doppelzählung).',
+  ausbilder: 'Neue Agenturleiter/-innen in Ihrer Struktur: 4,00 €/Einheit direkt, 1,33 €/Einheit indirekt. Gilt in den ersten 36 Hauptberufsmonaten des jeweiligen Partners, sobald dieser kumuliert mind. 600 Einheiten Netto Neu Eigen erreicht hat.',
+  eliteclub: 'Gibt es erst, sobald Sie selbst die Team-Stufe RGS oder höher erreicht haben (Praxis-Stufe allein zählt hier nicht). Dann für alle Partner auf VBA-Stufe in der gesamten Struktur (direkt und indirekt), Basissatz 1,50 €/Einheit (ohne Prüfung einer zusätzlichen Club-Mitgliedschaft; Admirals-/Kapitäns-Club-Sätze von 1,75–2,00 € nicht berücksichtigt).',
+  foerder: 'Rollierende 12-Monats-Summe der Gruppeneinheiten (ab VBA, gesamte Struktur): ab 9.000 Einheiten 0,45 €/Einheit, ab 18.000 Einheiten 0,90 €/Einheit. Vereinfacht ohne Quartalsverzögerung und 40%-Deckelung.',
+  leistungsbonus: 'Leistungs-Bonus Praxis: Für hauptberufliche Berater/-innen ab Stufe P5 (bzw. RD1). Wird je Quartal aus den Einheiten Netto Neu Eigen (Eigenumsatz) ermittelt und im Folgequartal monatlich ausgezahlt: ab 3.000 Einheiten 0,50 €/Einheit, ab 4.800 Einheiten 1,00 €/Einheit (Quartalsbetrag auf 3 Monate verteilt). Voraussetzung: mind. 750 Einheiten Netto Neu Eigen in den letzten 3 Monaten. EQF-Prüfung (EQF Eigen ≤ 10) wird wie an anderer Stelle nicht abgebildet.',
+  erfolgSelf: 'Erfolgsprovision (Ihr eigenes Einkommen): Als VBA (erste 12 Monate, ab 100 Einheiten/Monat) 2,00 €/Einheit. Hauptberuflich ab AL 3,50 €/Einheit, sobald die Einheiten-Schwelle Ihrer Karrierephase erreicht ist (150/200/250 Einheiten je nach Zeit seit AL, 300 Einheiten ab P5/RD1).',
+  erfolgPartner: 'Erfolgsprovision dieses Partners – eigenes Einkommen des Partners, fließt nicht an Sie. Nur zur Information, nicht in "Gesamt Monat" enthalten.',
+  differenzPartner: 'Differenzprovision dieses Partners auf seine EIGENE direkte Unterstruktur (z. B. seine eigenen VBA) – eigenes Einkommen des Partners, fließt nicht an Sie. Nur zur Information, nicht in "Gesamt Monat" enthalten.',
+  partnerIncome: 'Zeigt das eigene Einkommen dieses Partners (Erfolgsprovision + seine eigene Differenzprovision auf seine Unterstruktur). Nur zur Information – fließt nicht in Ihr "Gesamt Monat" ein.',
+  zukunftspaket: 'Summe aus GENERALI Neukundenbonus, GENERALI Existenzgründer-Bonus PLUS, Karrierebonus, Beförderungsbonus und Kundenbestandsbonus für Ihre eigene Existenzgründerphase. Der (nicht zum Zukunftspaket zählende) Existenzgründer-Bonus wird als eigene Zeile separat ausgewiesen. Zeile anklicken zum Aufklappen der Einzelposten.',
+  exg: 'Existenzgründer-Bonus (unabhängig vom Zukunftspaket): 500 €/Monat für Sie als Agenturleiter/-in (bzw. höhere Stufe) in den ersten 36 Hauptberufsmonaten, sofern die Kriterien erfüllt sind (vereinfacht ohne die reale Einheiten-Staffel gemäß "Leistung lohnt sich").',
+  exgplus: 'GENERALI Existenzgründer-Bonus PLUS (Zukunftspaket): 500 €/Monat (max. 1.500 €/Quartal), wenn im Quartal mind. 60 Einheiten erreicht werden (vereinfacht statt 20 Einheiten je Sparte einzeln).',
+  karriere: 'Karrierebonus (Zukunftspaket): 125–500 € monatlich je nach aktueller Karrierestufe, in den ersten 36 Hauptberufsmonaten.',
+  befoerderung: 'Beförderungsbonus (Zukunftspaket): einmalig 600–6.000 € je erstmals erreichter Karrierestufe (Monat 1–36), zzgl. Wiederholung des höchsten Betrags im 42. Monat bei nachhaltiger Bestätigung.',
+  kundenbestand: 'Kundenbestandsbonus (Zukunftspaket): 375–625 € monatlich in den Hauptberufsmonaten 37–48, abhängig von der Anzahl Neukunden (nicht Einheiten!) in den ersten 36 Hauptberufsmonaten, berechnet aus Ihrer monatlichen Kundenanzahl.',
+  neukunden: 'GENERALI PLUS Neukundenbonus (Zukunftspaket): 250 €/Neukunde oberhalb von 5 Neukunden im Planjahr, gedeckelt bei 10.000 €/Jahr. Wird laufend ausgezahlt, sobald die Schwelle von 5 Neukunden im laufenden Planjahr überschritten ist &ndash; jeder weitere Neukunde löst in seinem Gewinnungsmonat 250 € aus (kumulativer Jahresdeckel).',
+  einheitenCalc: 'Automatisch berechnet: Kunden pro Monat (ich) × Einheiten pro Kunde. Dient als Basis für alle einheitenbasierten Provisionen (Eigenprovision, Erfolgsprovision usw.). Neukundenbonus und Kundenbestandsbonus verwenden hingegen direkt die Kundenanzahl.',
+  folgeInvest: 'Folgeprovision Investment (ab AL): Jeder Kunde mit 100 €/Monat Fondssparplan erzeugt dauerhaft 0,2 Einheiten Folge pro Monat. Diese Einheiten summieren sich über die Zeit auf (jeder neue Kunde kommt zum Bestand dazu) und werden mit Ihrem aktuellen Provisionssatz vergütet. "Gruppe" = kaskadierende Differenzprovision auf das Folgegeschäft Ihrer direkten Struktur, analog zur normalen Differenzprovision.',
+  folgeSach: 'Folgeprovision Sachgeschäft (ab AL): In den ersten 24 Monaten ist die Sach-Provision bereits in den normalen Monatseinheiten enthalten. Ab dem 25. Monat nach Kundengewinnung erzeugt jeder Kunde dauerhaft 1 Einheit Folge pro Monat, zusätzlich zu den regulären Einheiten. "Gruppe" = kaskadierende Differenzprovision auf das Folgegeschäft Ihrer direkten Struktur, analog zur normalen Differenzprovision.',
+};
+
+// Tiefe je Partner: 1 = direkt (Betreuer = ich), 2+ = indirekt (Betreuer ist selbst ein Partner)
+function computeDepths(partners){
+  const map = {}; partners.forEach(p=> map[p.id]=p);
+  const cache = {};
+  function depthOf(id, visiting){
+    if(cache[id]!=null) return cache[id];
+    const p = map[id];
+    if(!p || p.parentId==null || visiting.has(id)){ cache[id]=1; return 1; }
+    visiting.add(id);
+    const d = 1+depthOf(p.parentId, visiting);
+    cache[id]=d;
+    return d;
+  }
+  const result={};
+  partners.forEach(p=> result[p.id]=depthOf(p.id, new Set()));
+  return result;
+}
+
+function forwardFill(bp, defaultVal, fromMonth){
+  const arr=[]; let last=defaultVal;
+  const start = fromMonth || 1;
+  for(let m=1;m<=N;m++){
+    if(m<start){ arr[m]=null; continue; }
+    if(bp[m]!==undefined) last=bp[m];
+    arr[m]=last;
+  }
+  return arr;
+}
+
+// ============================================================
+// BERECHNUNG
+// ============================================================
+function compute(){
+  const selfTeam = forwardFill(state.selfTeamBP, 'AL');
+  const selfPraxis = forwardFill(state.selfPraxisBP, null);
+
+  const selfKunden=[], selfEinheiten=[];
+  for(let m=1;m<=N;m++){
+    selfKunden[m] = state.selfKundenOverride[m] != null ? state.selfKundenOverride[m] : state.kundenProMonat;
+    selfEinheiten[m] = selfKunden[m]*state.einheitenProKunde;
+  }
+
+  const selfRate=[], selfEffStage=[];
+  for(let m=1;m<=N;m++){
+    const teamRate = STAGES[selfTeam[m]].rate;
+    if(STAGES[selfTeam[m]].hauptberuf){
+      const praxisRate = selfPraxis[m] ? STAGES[selfPraxis[m]].rate : 0;
+      if(praxisRate > teamRate){ selfRate[m]=praxisRate; selfEffStage[m]=selfPraxis[m]; }
+      else { selfRate[m]=teamRate; selfEffStage[m]=selfTeam[m]; }
+    } else { selfRate[m]=teamRate; selfEffStage[m]=selfTeam[m]; }
+  }
+
+  let firstHB=null;
+  for(let m=1;m<=N;m++){ if(STAGES[selfTeam[m]].hauptberuf){ firstHB=m; break; } }
+  const selfHb=[];
+  for(let m=1;m<=N;m++) selfHb[m] = firstHB && m>=firstHB ? (m-firstHB+1) : 0;
+
+  let firstVBASelf=null;
+  for(let m=1;m<=N;m++){ if(selfTeam[m]==='VBA'){ firstVBASelf=m; break; } }
+  const selfErfolg=[];
+  for(let m=1;m<=N;m++){
+    const vbaMonat = firstVBASelf && selfTeam[m]==='VBA' ? (m-firstVBASelf+1) : 0;
+    selfErfolg[m] = erfolgsprovisionAmount(selfEffStage[m], selfEinheiten[m], vbaMonat, selfHb[m]);
+  }
+
+  // Partner-Arrays
+  const partnerData = state.partners.map(p=>{
+    const stage=[], units=[];
+    let lastS=null, lastU=null;
+    for(let m=1;m<=N;m++){
+      if(m<p.startMonth){ stage[m]=null; units[m]=0; continue; }
+      if(p.stageBP[m]!==undefined) lastS=p.stageBP[m];
+      if(p.unitsBP[m]!==undefined) lastU=p.unitsBP[m];
+      stage[m]=lastS; units[m]= lastU!=null?lastU:0;
+    }
+    let firstHBp=null;
+    for(let m=1;m<=N;m++){ if(stage[m] && STAGES[stage[m]].hauptberuf){ firstHBp=m; break; } }
+    let firstVBAp=null;
+    for(let m=1;m<=N;m++){ if(stage[m]==='VBA'){ firstVBAp=m; break; } }
+    return { p, stage, units, firstHBp, firstVBAp };
+  });
+
+  const depths = computeDepths(state.partners);
+
+  // Kaskadierende Struktur: wer ist wessen direkter Betreuer?
+  const partnerById = {}; partnerData.forEach(pd=> partnerById[pd.p.id]=pd);
+  const childrenMap = {}; // 'self' oder partnerId -> [partnerId, ...] (direkte Kinder)
+  state.partners.forEach(p=>{
+    const key = p.parentId==null ? 'self' : p.parentId;
+    if(!childrenMap[key]) childrenMap[key]=[];
+    childrenMap[key].push(p.id);
+  });
+  // Gesamtvolumen (eigene Einheiten + komplette Unterstruktur) eines Partners in Monat m
+  function subtreeVolume(pid, m, visiting){
+    if(visiting.has(pid)) return 0; // Zyklus-Schutz
+    visiting.add(pid);
+    const pd = partnerById[pid];
+    let vol = pd ? pd.units[m] : 0;
+    (childrenMap[pid]||[]).forEach(kid=> vol += subtreeVolume(kid, m, visiting));
+    return vol;
+  }
+
+  const eigenZusatz=[], gruppenEinheiten=[], differenz=[], ausbilder=[], eliteClub=[];
+  for(let m=1;m<=N;m++){ eigenZusatz[m]=0; gruppenEinheiten[m]=0; differenz[m]=0; ausbilder[m]=0; eliteClub[m]=0; }
+
+  // Eigenzusatz (VM) & Differenzprovision (ich): nur über MEINE direkten Partner,
+  // jeweils auf das Gesamtvolumen der jeweiligen Unterstruktur (kaskadierend, keine Doppelzählung)
+  for(let m=1;m<=N;m++){
+    (childrenMap['self']||[]).forEach(pid=>{
+      const pd = partnerById[pid];
+      if(!pd || !pd.stage[m]) return;
+      const vol = subtreeVolume(pid, m, new Set());
+      if(pd.stage[m]==='VM'){
+        eigenZusatz[m] += vol;
+      } else {
+        const childRate = STAGES[pd.stage[m]].rate;
+        differenz[m] += Math.max(0, selfRate[m]-childRate) * vol;
+      }
+    });
+  }
+
+  // Je Partner: eigenes Einkommen (Erfolgsprovision + eigene Differenzprovision auf seine
+  // direkte Unterstruktur) sowie strukturweite Boni (Ausbilder, Elite-Club, Förderbasis)
+  partnerData.forEach(pd=>{
+    let cum=0;
+    const depth = depths[pd.p.id] || 1;
+    const ausbilderRate = depth===1 ? 4.00 : 1.33; // direkt vs. indirekt (gesamte Struktur)
+    pd.erfolg = [];
+    pd.differenzOwn = [];
+    for(let m=1;m<=N;m++){
+      const st = pd.stage[m];
+      pd.erfolg[m]=0; pd.differenzOwn[m]=0;
+      if(!st) continue;
+      const units = pd.units[m];
+      // Erfolgsprovision des Partners selbst (eigenes Einkommen, fließt nicht an "ich")
+      const hbp = pd.firstHBp && m>=pd.firstHBp ? (m-pd.firstHBp+1) : 0;
+      const vbap = pd.firstVBAp && st==='VBA' ? (m-pd.firstVBAp+1) : 0;
+      pd.erfolg[m] = erfolgsprovisionAmount(st, units, vbap, hbp);
+
+      // Differenzprovision dieses Partners auf SEINE eigene direkte Unterstruktur
+      const ownRate = STAGES[st].rate;
+      (childrenMap[pd.p.id]||[]).forEach(kid=>{
+        const kpd = partnerById[kid];
+        if(!kpd || !kpd.stage[m] || kpd.stage[m]==='VM') return;
+        const vol = subtreeVolume(kid, m, new Set());
+        const childRate = STAGES[kpd.stage[m]].rate;
+        pd.differenzOwn[m] += Math.max(0, ownRate-childRate) * vol;
+      });
+
+      if(st==='VM'){ continue; } // VM-Einheiten zählen als Eigenumsatz des jeweiligen Betreuers
+      // ab VBA aufwärts: Gruppenumsatz (Basis für Förderprovision, strukturweit & unkaskadiert)
+      gruppenEinheiten[m]+=units;
+      // Elite-Club-Bonus: alle VBA in der gesamten Struktur (direkt + indirekt),
+      // aber nur wenn ICH SELBST Team-Stufe RGS oder höher erreicht habe
+      if(st==='VBA' && TEAM_IDS.indexOf(selfTeam[m])>=ELITECLUB_MIN_TEAM_IDX){ eliteClub[m]+= units*1.50; }
+      // Ausbilder-Bonus: neue AL (direkt + indirekt), erste 36 Monate ab AL, ab 600 kum. Einheiten
+      if(STAGES[st].hauptberuf && pd.firstHBp){
+        cum+=units;
+        if(hbp>=1 && hbp<=36 && cum>=600){
+          ausbilder[m]+= units*ausbilderRate;
+        }
+      }
+    }
+  });
+
+  const eigenEinheitenTotal=[], eigenprovision=[];
+  for(let m=1;m<=N;m++){
+    eigenEinheitenTotal[m] = selfEinheiten[m]+eigenZusatz[m];
+    eigenprovision[m] = eigenEinheitenTotal[m]*selfRate[m];
+  }
+
+  const foerder=[];
+  for(let m=1;m<=N;m++){
+    let roll=0;
+    for(let k=Math.max(1,m-11); k<=m; k++) roll+=gruppenEinheiten[k];
+    const rate = roll>=18000?0.90:roll>=9000?0.45:0;
+    foerder[m] = gruppenEinheiten[m]*rate;
+  }
+
+  // ============================================================
+  // Leistungs-Bonus Praxis (ab P5/RD1): 0,50 €/1,00 € je Einheit Netto Neu Eigen
+  // des Vorquartals, im Folgequartal auf 3 Monate verteilt ausgezahlt
+  // ============================================================
+  const leistungsBonusPraxis=[];
+  for(let m=1;m<=N;m++){
+    const q = Math.floor((m-1)/3); // 0-basierter Quartalsindex des Monats m
+    let prevQTotal = 0;
+    if(q>=1){
+      const startPrev=(q-1)*3+1, endPrev=q*3;
+      for(let k=startPrev;k<=endPrev;k++) prevQTotal += eigenEinheitenTotal[k];
+    }
+    const rate = prevQTotal>=4800?1.00:prevQTotal>=3000?0.50:0;
+    const monthlyAmount = rate*prevQTotal/3;
+    // Voraussetzung: mind. 750 Einheiten Netto Neu Eigen in den letzten 3 Monaten (rollierend)
+    let roll3=0;
+    for(let k=Math.max(1,m-2); k<=m; k++) roll3 += eigenEinheitenTotal[k];
+    const gate = HIGH_TIER_IDS.indexOf(selfEffStage[m])>=0 && roll3>=750;
+    leistungsBonusPraxis[m] = gate ? monthlyAmount : 0;
+  }
+
+  // ============================================================
+  // Folgeprovision (ab AL): Investment (Fondssparplan) & Sachgeschäft
+  // ============================================================
+  function cumSum(arr, uptoM){ let s=0; for(let k=1;k<=uptoM;k++) s+=(arr[k]||0); return s; }
+
+  // Implizierte Neukunden je Partner und Monat, abgeleitet aus dessen Einheiten-Eingabe
+  // über das globale Verhältnis "Einheiten pro Kunde" (vereinfachend, da Partner keine
+  // eigene Kunden-Eingabe haben)
+  const partnerKunden = {};
+  partnerData.forEach(pd=>{
+    partnerKunden[pd.p.id] = [];
+    for(let m=1;m<=N;m++){
+      partnerKunden[pd.p.id][m] = state.einheitenProKunde>0 ? (pd.units[m]/state.einheitenProKunde) : 0;
+    }
+  });
+
+  // Investment-Folge-Einheiten (0,2 je Kunde/Monat, kumulativ ab Kundengewinnung, dauerhaft)
+  const selfInvestFolgeEinheiten=[];
+  for(let m=1;m<=N;m++) selfInvestFolgeEinheiten[m] = 0.2*cumSum(selfKunden, m);
+  const partnerInvestFolgeEinheiten={};
+  partnerData.forEach(pd=>{
+    partnerInvestFolgeEinheiten[pd.p.id]=[];
+    for(let m=1;m<=N;m++) partnerInvestFolgeEinheiten[pd.p.id][m] = 0.2*cumSum(partnerKunden[pd.p.id], m);
+  });
+
+  // Sach-Folge-Einheiten (1 je Kunde/Monat, ab dem 25. Monat nach Kundengewinnung, dauerhaft)
+  const selfSachFolgeEinheiten=[];
+  for(let m=1;m<=N;m++) selfSachFolgeEinheiten[m] = m>24 ? cumSum(selfKunden, m-24) : 0;
+  const partnerSachFolgeEinheiten={};
+  partnerData.forEach(pd=>{
+    partnerSachFolgeEinheiten[pd.p.id]=[];
+    for(let m=1;m<=N;m++) partnerSachFolgeEinheiten[pd.p.id][m] = m>24 ? cumSum(partnerKunden[pd.p.id], m-24) : 0;
+  });
+
+  // Generische Kaskade (wie Differenzprovision), aber auf einer beliebigen Folge-Einheiten-Basis
+  function subtreeVolumeGeneric(pid, m, visiting, ownVolFn){
+    if(visiting.has(pid)) return 0;
+    visiting.add(pid);
+    let vol = ownVolFn(pid, m);
+    (childrenMap[pid]||[]).forEach(kid=> vol += subtreeVolumeGeneric(kid, m, visiting, ownVolFn));
+    return vol;
+  }
+  function computeCascadeGeneric(ownVolFn){
+    const selfEigenAdd=[], selfDiff=[];
+    for(let m=1;m<=N;m++){
+      selfEigenAdd[m]=0; selfDiff[m]=0;
+      (childrenMap['self']||[]).forEach(pid=>{
+        const pd = partnerById[pid];
+        if(!pd || !pd.stage[m]) return;
+        const vol = subtreeVolumeGeneric(pid, m, new Set(), ownVolFn);
+        if(pd.stage[m]==='VM'){ selfEigenAdd[m]+=vol; }
+        else { const childRate=STAGES[pd.stage[m]].rate; selfDiff[m]+=Math.max(0, selfRate[m]-childRate)*vol; }
+      });
+    }
+    return { selfEigenAdd, selfDiff };
+  }
+  const investCascade = computeCascadeGeneric((pid,m)=>partnerInvestFolgeEinheiten[pid][m]);
+  const sachCascade = computeCascadeGeneric((pid,m)=>partnerSachFolgeEinheiten[pid][m]);
+
+  const folgeInvestEigen=[], folgeInvestGruppe=[], folgeInvest=[];
+  const folgeSachEigen=[], folgeSachGruppe=[], folgeSach=[];
+  for(let m=1;m<=N;m++){
+    const gate = STAGES[selfEffStage[m]].hauptberuf; // Folgeprovision gilt ab AL
+    const investEigenBase = selfInvestFolgeEinheiten[m] + investCascade.selfEigenAdd[m];
+    folgeInvestEigen[m] = gate ? investEigenBase*selfRate[m] : 0;
+    folgeInvestGruppe[m] = gate ? investCascade.selfDiff[m] : 0;
+    folgeInvest[m] = folgeInvestEigen[m]+folgeInvestGruppe[m];
+
+    const sachEigenBase = selfSachFolgeEinheiten[m] + sachCascade.selfEigenAdd[m];
+    folgeSachEigen[m] = gate ? sachEigenBase*selfRate[m] : 0;
+    folgeSachGruppe[m] = gate ? sachCascade.selfDiff[m] : 0;
+    folgeSach[m] = folgeSachEigen[m]+folgeSachGruppe[m];
+  }
+
+  // Zukunftspaket (eigene Existenzgründerphase)
+  const exg=[], exgPlus=[], karriereBonus=[], befoerderungPerMonth=[], kundenbestandBonus=[];
+  for(let m=1;m<=N;m++){ exg[m]=0; exgPlus[m]=0; karriereBonus[m]=0; befoerderungPerMonth[m]=0; kundenbestandBonus[m]=0; }
+
+  for(let m=1;m<=N;m++){ if(selfHb[m]>=1 && selfHb[m]<=36) exg[m]=500; }
+  if(firstHB){
+    for(let q=1;q<=12;q++){
+      const hbStart=(q-1)*3+1, hbEnd=q*3;
+      let sum=0; const monthsInQ=[];
+      for(let hb=hbStart; hb<=hbEnd && hb<=36; hb++){
+        const m=firstHB+hb-1;
+        if(m>=1 && m<=N){ sum+=selfEinheiten[m]; monthsInQ.push(m); }
+      }
+      if(sum>=60) monthsInQ.forEach(m=>exgPlus[m]=500);
+    }
+  }
+  for(let m=1;m<=N;m++){
+    const hb=selfHb[m];
+    if(hb>=1 && hb<=36){
+      const sid = selfEffStage[m];
+      karriereBonus[m] = KARRIEREBONUS[sid]!=null ? KARRIEREBONUS[sid] : 500;
+    }
+  }
+  const reached=new Set(); let highestAmount=0;
+  for(let m=1;m<=N;m++){
+    const hb=selfHb[m];
+    if(hb>=1 && hb<=36){
+      const sid = selfEffStage[m];
+      if(!reached.has(sid) && BEFOERDERUNG[sid]!=null){
+        reached.add(sid);
+        befoerderungPerMonth[m]+=BEFOERDERUNG[sid];
+        if(BEFOERDERUNG[sid]>highestAmount) highestAmount=BEFOERDERUNG[sid];
+      }
+    }
+  }
+  if(highestAmount>0 && firstHB){
+    const m42=firstHB+42-1;
+    if(m42>=1 && m42<=N) befoerderungPerMonth[m42]+=highestAmount;
+  }
+  let bestand37=0;
+  for(let m=1;m<=N;m++) if(selfHb[m]>=1 && selfHb[m]<=36) bestand37+= selfKunden[m];
+  const kbRate = bestand37>=125?625:bestand37>=100?500:bestand37>=75?375:0;
+  for(let m=1;m<=N;m++) if(selfHb[m]>=37 && selfHb[m]<=48) kundenbestandBonus[m]=kbRate;
+
+  const neukundenPerMonth=[];
+  for(let m=1;m<=N;m++){
+    neukundenPerMonth[m] = STAGES[selfTeam[m]].hauptberuf ? selfKunden[m] : 0;
+  }
+  // Laufende Berechnung: ab dem 6. Neukunden im Planjahr wird jeder weitere Neukunde sofort
+  // in dem Monat vergütet, in dem er gewonnen wird (kumulativ, Jahresdeckel 10.000 €)
+  const neukundenbonusPerYear=[0,0,0,0,0];
+  const neukundenbonusPerMonth=[];
+  for(let m=1;m<=N;m++) neukundenbonusPerMonth[m]=0;
+  for(let y=1;y<=4;y++){
+    let cumBefore=0, yearTotal=0;
+    for(let m=(y-1)*12+1; m<=y*12; m++){
+      const cumAfter = cumBefore+neukundenPerMonth[m];
+      const newQualifying = Math.max(0,cumAfter-5)-Math.max(0,cumBefore-5);
+      let bonus = newQualifying*250;
+      if(yearTotal+bonus>10000) bonus = Math.max(0, 10000-yearTotal);
+      neukundenbonusPerMonth[m] = bonus;
+      yearTotal += bonus;
+      cumBefore = cumAfter;
+    }
+    neukundenbonusPerYear[y] = yearTotal;
+  }
+
+  // Zukunftspaket (ich): Neukundenbonus, Existenzgründer-Bonus PLUS, Karrierebonus,
+  // Beförderungsbonus, Kundenbestandsbonus. Der (separate) Existenzgründer-Bonus (exg)
+  // gehört NICHT zum Zukunftspaket und wird als eigene Zeile geführt.
+  const zukunftspaketSelf=[];
+  for(let m=1;m<=N;m++){
+    zukunftspaketSelf[m] = neukundenbonusPerMonth[m]+exgPlus[m]+karriereBonus[m]+befoerderungPerMonth[m]+kundenbestandBonus[m];
+  }
+
+  const totalMonth=[];
+  for(let m=1;m<=N;m++){
+    totalMonth[m] = eigenprovision[m]+differenz[m]+ausbilder[m]+eliteClub[m]+foerder[m]+leistungsBonusPraxis[m]+selfErfolg[m]+exg[m]+folgeInvest[m]+folgeSach[m]+zukunftspaketSelf[m];
+  }
+
+  const jahressumme=[0,0,0,0,0];
+  for(let y=1;y<=4;y++){
+    let s=0;
+    for(let m=(y-1)*12+1;m<=y*12;m++) s+=totalMonth[m];
+    jahressumme[y]=s;
+  }
+  const gesamt = jahressumme.reduce((a,b)=>a+b,0);
+
+  return {
+    selfTeam, selfPraxis, selfKunden, selfEinheiten, selfRate, selfEffStage, selfHb, firstHB,
+    partnerData, depths, eigenZusatz, gruppenEinheiten, differenz, ausbilder, eliteClub, selfErfolg,
+    eigenEinheitenTotal, eigenprovision, foerder, leistungsBonusPraxis,
+    folgeInvest, folgeInvestEigen, folgeInvestGruppe, folgeSach, folgeSachEigen, folgeSachGruppe,
+    exg, exgPlus, karriereBonus, befoerderungPerMonth, kundenbestandBonus, bestand37, kbRate,
+    neukundenbonusPerYear, neukundenbonusPerMonth, zukunftspaketSelf, totalMonth, jahressumme, gesamt
+  };
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function stageOptionsHtml(ids, current, allowNone){
+  let html='';
+  if(allowNone) html += `<option value="" ${!current?'selected':''}>&ndash;</option>`;
+  ids.forEach(id=>{
+    html += `<option value="${id}" ${current===id?'selected':''}>${STAGES[id].label}</option>`;
+  });
+  return html;
+}
+
+function labelHtml(text, key){
+  const open = !!state.openInfo[key];
+  return `<div class="rowlabel-flex"><span>${text}</span><button type="button" class="infobtn" data-role="toggleInfo" data-key="${key}" title="Erklärung anzeigen">i</button></div>`
+       + `<div class="row-desc" id="info-${key}" style="display:${open?'block':'none'};">${DESCRIPTIONS[key]||''}</div>`;
+}
+
+function renderYearTabs(){
+  const el = document.getElementById('yearTabs');
+  el.innerHTML='';
+  for(let y=1;y<=4;y++){
+    const btn = document.createElement('button');
+    btn.className = 'year-tab' + (state.currentYear===y?' active':'');
+    btn.textContent = 'Jahr ' + y;
+    btn.onclick = () => { state.currentYear=y; renderAll(); };
+    el.appendChild(btn);
+  }
+}
+
+function monthsOfYear(y){
+  const arr=[];
+  for(let i=1;i<=12;i++) arr.push((y-1)*12+i);
+  return arr;
+}
+
+function buildPlanTableHtml(calc, year){
+  const months = monthsOfYear(year);
+  let html = '<thead><tr><th class="rowlabel">Monat</th>';
+  months.forEach((m,i)=>{
+    const hb = calc.selfHb[m];
+    html += `<th>Monat ${i+1}${hb>0?`<span class="hb-tag">HB-Monat ${hb}</span>`:''}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  // Team-Stufe
+  html += '<tr><td class="rowlabel">Team-Stufe (ich)</td>';
+  months.forEach(m=>{
+    html += `<td><select data-role="selfTeam" data-m="${m}">${stageOptionsHtml(TEAM_IDS, calc.selfTeam[m], false)}</select></td>`;
+  });
+  html += '</tr>';
+
+  // Praxis-Stufe
+  html += '<tr><td class="rowlabel">Praxis-Stufe (ich)</td>';
+  months.forEach(m=>{
+    const disabled = STAGES[calc.selfTeam[m]].hauptberuf ? '' : 'disabled';
+    html += `<td><select data-role="selfPraxis" data-m="${m}" ${disabled}>${stageOptionsHtml(PRAXIS_IDS, calc.selfPraxis[m], true)}</select></td>`;
+  });
+  html += '</tr>';
+
+  // Kunden pro Monat (ich) — Einheiten werden daraus berechnet
+  html += '<tr><td class="rowlabel">Kunden pro Monat (ich)</td>';
+  months.forEach(m=>{
+    html += `<td><input type="number" min="0" step="1" data-role="selfKunden" data-m="${m}" value="${calc.selfKunden[m]}"></td>`;
+  });
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('&#8618; Einheiten (berechnet)', 'einheitenCalc')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.selfEinheiten[m])}</td>`);
+  html += '</tr>';
+
+  // Neuen Partner anlegen
+  html += '<tr><td class="rowlabel">Neuen Partner anlegen</td>';
+  months.forEach(m=>{
+    html += `<td><button type="button" class="addbtn" data-role="addPartner" data-m="${m}" title="Partner ab Monat ${m} anlegen">+</button></td>`;
+  });
+  html += '</tr>';
+
+  // Partner-Zeilen
+  state.partners.forEach(p=>{
+    const pd = calc.partnerData.find(x=>x.p.id===p.id);
+    const depth = calc.depths[p.id] || 1;
+    const depthTag = depth===1 ? 'direkt' : `indirekt, Tiefe ${depth}`;
+    const collapsed = !!state.partnerCollapsed[p.id];
+    let betreuerOptions = `<option value="" ${p.parentId==null?'selected':''}>Ich</option>`;
+    state.partners.forEach(other=>{
+      if(other.id===p.id) return;
+      betreuerOptions += `<option value="${other.id}" ${p.parentId===other.id?'selected':''}>${other.name}</option>`;
+    });
+
+    // Name/Betreuer-Zeile (immer sichtbar)
+    html += `<tr><td class="rowlabel"><div class="partner-name-cell"><button type="button" class="expand-toggle" data-role="togglePartnerCollapse" data-pid="${p.id}" title="${collapsed?'Details anzeigen':'Details ausblenden'}">${collapsed?'&#9654;':'&#9660;'}</button><input type="text" data-role="partnerName" data-pid="${p.id}" value="${p.name}"><button type="button" class="delbtn" data-role="delPartner" data-pid="${p.id}" title="Partner löschen">&times;</button></div>`
+         +  `<div style="font-size:10px; color:var(--muted); margin-top:3px; display:flex; align-items:center; gap:4px;">Betreuer: <select data-role="partnerParent" data-pid="${p.id}" style="font-size:10px; padding:2px;">${betreuerOptions}</select></div>`
+         +  `<div style="font-size:10px; color:var(--muted); margin-top:2px;">(${depthTag})</div></td>`;
+    months.forEach(m=>{
+      if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
+      else if(collapsed){
+        html += `<td style="font-size:10.5px; color:var(--muted);">${STAGES[pd.stage[m]].label.split(' (')[0]}<br>${fmt(pd.units[m])} E.</td>`;
+      } else {
+        html += `<td class="empty">&ndash;</td>`;
+      }
+    });
+    html += '</tr>';
+
+    if(!collapsed){
+      html += `<tr><td class="rowlabel">Stufe</td>`;
+      months.forEach(m=>{
+        if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
+        else { html += `<td><select data-role="partnerStage" data-pid="${p.id}" data-m="${m}">${stageOptionsHtml(ALL_IDS, pd.stage[m], false)}</select></td>`; }
+      });
+      html += '</tr>';
+
+      html += `<tr><td class="rowlabel">&#8618; Einheiten</td>`;
+      months.forEach(m=>{
+        if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
+        else { html += `<td><input type="number" min="0" step="1" data-role="partnerUnits" data-pid="${p.id}" data-m="${m}" value="${pd.units[m]}"></td>`; }
+      });
+      html += '</tr>';
+
+      // Partner-Einkommen: aufklappbar (info-only, nicht in "Gesamt Monat")
+      const incOpen = !!state.partnerIncomeOpen[p.id];
+      html += `<tr class="partner-info-row"><td class="rowlabel"><div class="rowlabel-flex"><span><button type="button" class="expand-toggle" data-role="togglePartnerIncome" data-pid="${p.id}" title="Einzelposten anzeigen">${incOpen?'&#9660;':'&#9654;'}</button>&#8618; Partner-Einkommen (Info)</span><button type="button" class="infobtn" data-role="toggleInfo" data-key="partnerIncome" title="Erklärung anzeigen">i</button></div><div class="row-desc" id="info-partnerIncome" style="display:${!!state.openInfo['partnerIncome']?'block':'none'};">${DESCRIPTIONS.partnerIncome}</div></td>`;
+      months.forEach(m=>{
+        if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
+        else { html += `<td class="calc">${fmt(pd.erfolg[m]+pd.differenzOwn[m])} &euro;</td>`; }
+      });
+      html += '</tr>';
+      if(incOpen){
+        html += `<tr class="partner-info-row"><td class="rowlabel">${labelHtml('&nbsp;&nbsp;&#8618; Erfolgsprovision (Partner)', 'erfolgPartner')}</td>`;
+        months.forEach(m=>{
+          if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
+          else { html += `<td class="calc">${fmt(pd.erfolg[m])} &euro;</td>`; }
+        });
+        html += '</tr>';
+        html += `<tr class="partner-info-row"><td class="rowlabel">${labelHtml('&nbsp;&nbsp;&#8618; Differenzprovision (Partner)', 'differenzPartner')}</td>`;
+        months.forEach(m=>{
+          if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
+          else { html += `<td class="calc">${fmt(pd.differenzOwn[m])} &euro;</td>`; }
+        });
+        html += '</tr>';
+      }
+    }
+  });
+
+  // Berechnete Zeilen
+  html += '<tr class="section-row"><td class="rowlabel" colspan="'+(months.length+1)+'">Berechnete Provisionseinnahmen</td></tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Eigenprovision (Eigenumsatz)', 'eigen')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.eigenprovision[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Erfolgsprovision (ich)', 'erfolgSelf')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.selfErfolg[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Differenzprovision (Gruppe)', 'differenz')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.differenz[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Folgeprovision Investment (Eigen + Gruppe)', 'folgeInvest')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.folgeInvest[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Folgeprovision Sachgeschäft (Eigen + Gruppe)', 'folgeSach')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.folgeSach[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Ausbilder-Bonus (direkt &amp; indirekt)', 'ausbilder')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.ausbilder[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Elite-Club-Bonus (ab RGS, VBA gesamte Struktur)', 'eliteclub')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.eliteClub[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Förderprovision', 'foerder')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.foerder[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Leistungs-Bonus Praxis (ab P5/RD1)', 'leistungsbonus')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.leistungsBonusPraxis[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += `<tr><td class="rowlabel">${labelHtml('Existenzgründer-Bonus', 'exg')}</td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.exg[m])} &euro;</td>`);
+  html += '</tr>';
+
+  const zkOpen = !!state.zkExpanded;
+  const zkInfoOpen = !!state.openInfo['zukunftspaket'];
+  html += `<tr><td class="rowlabel"><div class="rowlabel-flex"><span><button type="button" class="expand-toggle" data-role="toggleZk" title="Einzelposten anzeigen">${zkOpen?'&#9660;':'&#9654;'}</button>Zukunftspaket-Bonus (ich)</span><button type="button" class="infobtn" data-role="toggleInfo" data-key="zukunftspaket" title="Erklärung anzeigen">i</button></div><div class="row-desc" id="info-zukunftspaket" style="display:${zkInfoOpen?'block':'none'};">${DESCRIPTIONS.zukunftspaket}</div></td>`;
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.zukunftspaketSelf[m])} &euro;</td>`);
+  html += '</tr>';
+
+  if(zkOpen){
+    const subRows = [
+      ['GENERALI Neukundenbonus', calc.neukundenbonusPerMonth, 'neukunden'],
+      ['GENERALI Existenzgründer-Bonus PLUS', calc.exgPlus, 'exgplus'],
+      ['Karrierebonus', calc.karriereBonus, 'karriere'],
+      ['Beförderungsbonus', calc.befoerderungPerMonth, 'befoerderung'],
+      ['Kundenbestandsbonus', calc.kundenbestandBonus, 'kundenbestand'],
+    ];
+    subRows.forEach(row=>{
+      html += `<tr class="zk-sub-row"><td class="rowlabel">${labelHtml(row[0], row[2])}</td>`;
+      months.forEach(m=> html += `<td class="calc">${fmt(row[1][m])} &euro;</td>`);
+      html += '</tr>';
+    });
+  }
+
+  html += '<tr class="total-row"><td class="rowlabel">Gesamt Monat</td>';
+  months.forEach(m=> html += `<td>${fmt(calc.totalMonth[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += '</tbody>';
+  return html;
+}
+
+function renderTable(calc){
+  const table = document.getElementById('planTable');
+  table.innerHTML = buildPlanTableHtml(calc, state.currentYear);
+  bindTableEvents(table);
+}
+
+// Druckversion: reine Textwerte statt Eingabefelder (Dropdowns/Inputs lassen sich
+// browserübergreifend nicht zuverlässig drucken)
+function buildPrintTableHtml(calc, year){
+  const months = monthsOfYear(year);
+  let html = '<thead><tr><th class="rowlabel">Monat</th>';
+  months.forEach((m,i)=>{
+    const hb = calc.selfHb[m];
+    html += `<th>Monat ${i+1}${hb>0?`<span class="hb-tag">HB-Monat ${hb}</span>`:''}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  html += '<tr><td class="rowlabel">Team-Stufe (ich)</td>';
+  months.forEach(m=> html += `<td>${STAGES[calc.selfTeam[m]].label}</td>`);
+  html += '</tr>';
+
+  html += '<tr><td class="rowlabel">Praxis-Stufe (ich)</td>';
+  months.forEach(m=> html += `<td>${calc.selfPraxis[m]?STAGES[calc.selfPraxis[m]].label:'&ndash;'}</td>`);
+  html += '</tr>';
+
+  html += '<tr><td class="rowlabel">Kunden pro Monat (ich)</td>';
+  months.forEach(m=> html += `<td>${fmt(calc.selfKunden[m])}</td>`);
+  html += '</tr>';
+
+  html += '<tr><td class="rowlabel">&#8618; Einheiten (berechnet)</td>';
+  months.forEach(m=> html += `<td class="calc">${fmt(calc.selfEinheiten[m])}</td>`);
+  html += '</tr>';
+
+  state.partners.forEach(p=>{
+    const pd = calc.partnerData.find(x=>x.p.id===p.id);
+    const depth = calc.depths[p.id] || 1;
+    const depthTag = depth===1 ? 'direkt' : `indirekt, Tiefe ${depth}`;
+    const betreuerName = p.parentId==null ? 'Ich' : ((state.partners.find(x=>x.id===p.parentId)||{}).name || 'Ich');
+    html += `<tr><td class="rowlabel">${p.name}<div style="font-size:9px; color:var(--muted);">Betreuer: ${betreuerName} (${depthTag})</div></td>`;
+    months.forEach(m=> html += `<td>${m<p.startMonth?'&ndash;':STAGES[pd.stage[m]].label}</td>`);
+    html += '</tr>';
+    html += '<tr><td class="rowlabel">&#8618; Einheiten</td>';
+    months.forEach(m=> html += `<td>${m<p.startMonth?'&ndash;':fmt(pd.units[m])}</td>`);
+    html += '</tr>';
+  });
+
+  html += '<tr class="section-row"><td class="rowlabel" colspan="'+(months.length+1)+'">Berechnete Provisionseinnahmen</td></tr>';
+
+  const rows = [
+    ['Eigenprovision (Eigenumsatz)', calc.eigenprovision],
+    ['Erfolgsprovision (ich)', calc.selfErfolg],
+    ['Differenzprovision (Gruppe)', calc.differenz],
+    ['Folgeprovision Investment (Eigen + Gruppe)', calc.folgeInvest],
+    ['Folgeprovision Sachgeschäft (Eigen + Gruppe)', calc.folgeSach],
+    ['Ausbilder-Bonus (direkt &amp; indirekt)', calc.ausbilder],
+    ['Elite-Club-Bonus (ab RGS, VBA gesamte Struktur)', calc.eliteClub],
+    ['Förderprovision', calc.foerder],
+    ['Leistungs-Bonus Praxis (ab P5/RD1)', calc.leistungsBonusPraxis],
+    ['Existenzgründer-Bonus', calc.exg],
+    ['Zukunftspaket-Bonus (ich)', calc.zukunftspaketSelf],
+  ];
+  rows.forEach(row=>{
+    html += `<tr><td class="rowlabel">${row[0]}</td>`;
+    months.forEach(m=> html += `<td class="calc">${fmt(row[1][m])} &euro;</td>`);
+    html += '</tr>';
+  });
+
+  html += '<tr class="total-row"><td class="rowlabel">Gesamt Monat</td>';
+  months.forEach(m=> html += `<td>${fmt(calc.totalMonth[m])} &euro;</td>`);
+  html += '</tr>';
+
+  html += '</tbody>';
+  return html;
+}
+
+document.getElementById('printBtn').addEventListener('click', ()=>{
+  const calc = compute();
+  const area = document.getElementById('printArea');
+  let html = '';
+  for(let y=1;y<=4;y++){
+    html += `<div class="print-page"><h2>Karriereplan &amp; Provisionsberechnung &mdash; Jahr ${y}</h2><div class="table-scroll"><table class="plan">${buildPrintTableHtml(calc, y)}</table></div></div>`;
+  }
+  area.innerHTML = html;
+  window.print();
+});
+
+function bindTableEvents(table){
+  // Hinweis: renderAll() nach "change"-Events wird per setTimeout entkoppelt (nicht synchron),
+  // damit ein Klick auf einen anderen Button (z. B. Partner löschen), der durch den Fokuswechsel
+  // ein "change" auf dem vorher fokussierten Feld auslöst, nicht durch das dabei ausgelöste
+  // DOM-Neuaufbauen "verschluckt" wird (Race Condition zwischen change- und click-Event).
+  table.querySelectorAll('[data-role="selfTeam"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const m = parseInt(e.target.dataset.m);
+      state.selfTeamBP[m] = e.target.value;
+      setTimeout(renderAll, 0);
+    });
+  });
+  table.querySelectorAll('[data-role="selfPraxis"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const m = parseInt(e.target.dataset.m);
+      state.selfPraxisBP[m] = e.target.value || null;
+      setTimeout(renderAll, 0);
+    });
+  });
+  table.querySelectorAll('[data-role="selfKunden"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const m = parseInt(e.target.dataset.m);
+      const v = parseFloat(e.target.value);
+      state.selfKundenOverride[m] = isNaN(v)?0:v;
+      setTimeout(renderAll, 0);
+    });
+  });
+  table.querySelectorAll('[data-role="addPartner"]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      const m = parseInt(e.target.dataset.m);
+      const id = partnerSeq++;
+      state.partners.push({
+        id, name: 'Partner ' + id, parentId: null, startMonth: m,
+        stageBP: {[m]: 'VM'}, unitsBP: {[m]: 0}
+      });
+      renderAll();
+    });
+  });
+  table.querySelectorAll('[data-role="partnerName"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const pid = parseInt(e.target.dataset.pid);
+      const p = state.partners.find(x=>x.id===pid);
+      if(p) p.name = e.target.value || ('Partner ' + pid);
+    });
+  });
+  table.querySelectorAll('[data-role="partnerParent"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const pid = parseInt(e.target.dataset.pid);
+      const p = state.partners.find(x=>x.id===pid);
+      if(p) p.parentId = e.target.value ? parseInt(e.target.value) : null;
+      setTimeout(renderAll, 0);
+    });
+  });
+  table.querySelectorAll('[data-role="delPartner"]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      const pid = parseInt(e.target.dataset.pid);
+      state.partners = state.partners.filter(x=>x.id!==pid);
+      renderAll();
+    });
+  });
+  table.querySelectorAll('[data-role="partnerStage"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const pid = parseInt(e.target.dataset.pid);
+      const m = parseInt(e.target.dataset.m);
+      const p = state.partners.find(x=>x.id===pid);
+      if(p) p.stageBP[m] = e.target.value;
+      setTimeout(renderAll, 0);
+    });
+  });
+  table.querySelectorAll('[data-role="partnerUnits"]').forEach(el=>{
+    el.addEventListener('change', (e)=>{
+      const pid = parseInt(e.target.dataset.pid);
+      const m = parseInt(e.target.dataset.m);
+      const p = state.partners.find(x=>x.id===pid);
+      const v = parseFloat(e.target.value);
+      if(p) p.unitsBP[m] = isNaN(v)?0:v;
+      setTimeout(renderAll, 0);
+    });
+  });
+  table.querySelectorAll('[data-role="toggleInfo"]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      const key = e.currentTarget.dataset.key;
+      state.openInfo[key] = !state.openInfo[key];
+      renderAll();
+    });
+  });
+  table.querySelectorAll('[data-role="toggleZk"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.zkExpanded = !state.zkExpanded;
+      renderAll();
+    });
+  });
+  table.querySelectorAll('[data-role="togglePartnerCollapse"]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      const pid = parseInt(e.currentTarget.dataset.pid);
+      state.partnerCollapsed[pid] = !state.partnerCollapsed[pid];
+      renderAll();
+    });
+  });
+  table.querySelectorAll('[data-role="togglePartnerIncome"]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      const pid = parseInt(e.currentTarget.dataset.pid);
+      state.partnerIncomeOpen[pid] = !state.partnerIncomeOpen[pid];
+      renderAll();
+    });
+  });
+}
+
+function renderSummary(calc){
+  document.getElementById('yearLabelInline').textContent = state.currentYear;
+  document.getElementById('yearLabelInline2').textContent = state.currentYear;
+
+  const grid = document.getElementById('yearSummaryGrid');
+  grid.innerHTML='';
+  for(let y=1;y<=4;y++){
+    const div = document.createElement('div');
+    div.className = 'year-summary-item' + (state.currentYear===y?' active':'');
+    div.innerHTML = `<div class="ys-label">Jahr ${y}</div><div class="ys-value">${fmt(calc.jahressumme[y])} &euro;</div>`;
+    div.onclick = () => { state.currentYear=y; renderAll(); };
+    div.style.cursor='pointer';
+    grid.appendChild(div);
+  }
+
+  document.getElementById('gesamt4j').innerHTML = fmt(calc.gesamt) + ' <span>&euro; brutto</span>';
+  document.getElementById('gesamt4jSub').textContent = 'Summe aller Provisionen, Differenzprovisionen und Zukunftspaket-Boni über 4 Jahre';
+
+  // Breakdown-Tabelle für aktuelles Jahr
+  const y = state.currentYear;
+  const monthsY = monthsOfYear(y);
+  function sumRow(arr){ return monthsY.reduce((s,m)=>s+arr[m],0); }
+  const rows = [
+    ['Eigenprovision (Eigenumsatz)', sumRow(calc.eigenprovision)],
+    ['Erfolgsprovision (ich)', sumRow(calc.selfErfolg)],
+    ['Differenzprovision (meine direkte Struktur, kaskadierend)', sumRow(calc.differenz)],
+    ['Folgeprovision Investment (Eigen + Gruppe)', sumRow(calc.folgeInvest)],
+    ['Folgeprovision Sachgeschäft (Eigen + Gruppe)', sumRow(calc.folgeSach)],
+    ['Ausbilder-Bonus (direkt &amp; indirekt)', sumRow(calc.ausbilder)],
+    ['Elite-Club-Bonus (ab RGS, VBA gesamte Struktur)', sumRow(calc.eliteClub)],
+    ['Förderprovision', sumRow(calc.foerder)],
+    ['Leistungs-Bonus Praxis (ab P5/RD1)', sumRow(calc.leistungsBonusPraxis)],
+    ['Existenzgründer-Bonus (unabhängig vom Zukunftspaket)', sumRow(calc.exg)],
+    ['GENERALI Neukundenbonus (Zukunftspaket)', sumRow(calc.neukundenbonusPerMonth)],
+    ['GENERALI Existenzgründer-Bonus PLUS (Zukunftspaket)', sumRow(calc.exgPlus)],
+    ['Karrierebonus (Zukunftspaket)', sumRow(calc.karriereBonus)],
+    ['Beförderungsbonus (Zukunftspaket)', sumRow(calc.befoerderungPerMonth)],
+    ['Kundenbestandsbonus (Zukunftspaket)', sumRow(calc.kundenbestandBonus)],
+  ];
+  const tbl = document.getElementById('breakdownTable');
+  tbl.innerHTML = rows.map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])} &euro;</td></tr>`).join('')
+    + `<tr><td style="font-weight:900;color:var(--accent);">Jahressumme</td><td style="font-weight:900;color:var(--accent);">${fmt(calc.jahressumme[y])} &euro;</td></tr>`;
+
+  // Informativ: Summe des eigenen Einkommens aller Partner (fließt NICHT in Jahressumme)
+  let partnerIncomeSum = 0;
+  calc.partnerData.forEach(pd=>{ monthsY.forEach(m=> partnerIncomeSum += (pd.erfolg[m]||0)+(pd.differenzOwn[m]||0)); });
+  if(state.partners.length){
+    tbl.innerHTML += `<tr><td style="font-style:italic;color:var(--muted);">Eigenes Einkommen Ihrer Partner (Info, nicht in Jahressumme)</td><td style="font-style:italic;color:var(--muted);">${fmt(partnerIncomeSum)} &euro;</td></tr>`;
+  }
+}
+
+function renderAll(){
+  const calc = compute();
+  renderYearTabs();
+  renderTable(calc);
+  renderSummary(calc);
+}
+
+// ============================================================
+// INIT / EVENTS
+// ============================================================
+document.getElementById('berechnenBtn').addEventListener('click', ()=>{
+  const eK = parseFloat(document.getElementById('einheitenProKunde').value);
+  const kM = parseFloat(document.getElementById('kundenProMonat').value);
+  const fehler = document.getElementById('formFehler');
+  fehler.style.display='none';
+  if(isNaN(eK) || isNaN(kM) || eK<0 || kM<0){
+    fehler.textContent = '⚠️ Bitte gültige Werte für Einheiten pro Kunde und Kunden pro Monat angeben.';
+    fehler.style.display='block';
+    fehler.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  state.einheitenProKunde = eK;
+  state.kundenProMonat = kM;
+  state.currentYear = 1;
+  document.getElementById('result').classList.add('visible');
+  renderAll();
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'start'});
+});
+</script>
+</body>
+</html>

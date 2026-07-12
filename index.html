@@ -350,6 +350,14 @@
     .print-page table.plan td.rowlabel, .print-page table.plan th.rowlabel{ min-width:0; position:static; }
     .print-page .expand-toggle, .print-page .infobtn, .print-page .addbtn, .print-page .delbtn{ display:none; }
     .print-page select, .print-page input{ border:none; background:none; padding:0; -webkit-appearance:none; appearance:none; }
+    .print-page .print-footnote{
+      font-size: 8px;
+      color: #6b8099;
+      line-height: 1.5;
+      margin-top: 10px;
+      padding-top: 6px;
+      border-top: 1px solid #c8d5e3;
+    }
   }
 </style>
 </head>
@@ -394,7 +402,22 @@
         <table class="plan" id="planTable"></table>
       </div>
       <div class="footnote" style="margin-top:14px;">
-        Karrierestufen und Einheiten gelten ab dem gewählten Monat für alle Folgemonate, bis Sie eine neue Auswahl treffen. Frühere Monate bleiben unverändert. Mit dem grünen <strong>+</strong> legen Sie ab dem jeweiligen Monat einen neuen Partner an.
+        Karrierestufen und Einheiten gelten ab dem gewählten Monat für alle Folgemonate, bis Sie eine neue Auswahl treffen. Frühere Monate bleiben unverändert. Mit dem grünen <strong>+</strong> legen Sie ab dem jeweiligen Monat einen neuen Partner an.<br>
+        Alle Beträge sind gerundete Näherungswerte &ndash; Angaben ohne Gewähr, Berechnungsfehler vorbehalten. Die angeführten Sonderleistungen können sich ändern.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Weitere Sonderleistungen (nicht berechnet)</div>
+      <div class="footnote">
+        Neben den oben berechneten Provisionsarten gibt es je nach Karrierestufe und Sparten-Mix weitere Sonderleistungen, die dieser Rechner aus Komplexitätsgründen nicht abbildet. Sprechen Sie hierzu bitte Ihre Direktion an:
+        <ul>
+          <li>Allfinanz-Bonus Österreich</li>
+          <li>Kunden-Leistungsbonus</li>
+          <li>Familien-Absicherungsplan</li>
+          <li>Krankenhaustagegeld</li>
+          <li>Versorgungsplan</li>
+        </ul>
       </div>
     </div>
 
@@ -411,20 +434,6 @@
     <div class="card">
       <div class="section-title">Provisionsarten &mdash; Jahressumme Jahr <span id="yearLabelInline2">1</span></div>
       <table class="detail-table" id="breakdownTable"></table>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Weitere Sonderleistungen (nicht berechnet)</div>
-      <div class="footnote">
-        Neben den oben berechneten Provisionsarten gibt es je nach Karrierestufe und Sparten-Mix weitere Sonderleistungen, die dieser Rechner aus Komplexitätsgründen nicht abbildet. Sprechen Sie hierzu bitte Ihre Direktion an:
-        <ul>
-          <li>Allfinanz-Bonus Österreich</li>
-          <li>Kunden-Leistungsbonus</li>
-          <li>Familien-Absicherungsplan</li>
-          <li>Krankenhaustagegeld</li>
-          <li>Versorgungsplan</li>
-        </ul>
-      </div>
     </div>
 
     <div class="card">
@@ -1223,8 +1232,9 @@ document.getElementById('printBtn').addEventListener('click', ()=>{
   const calc = compute();
   const area = document.getElementById('printArea');
   let html = '';
+  const footnoteHtml = 'Alle Beträge sind gerundete Näherungswerte auf Basis Ihrer Angaben &ndash; Angaben ohne Gewähr, Berechnungsfehler vorbehalten. Die angeführten Sonderleistungen (Zukunftspaket, Boni etc.) können sich ändern.';
   for(let y=1;y<=4;y++){
-    html += `<div class="print-page"><h2>Karriereplan &amp; Provisionsberechnung &mdash; Jahr ${y}</h2><div class="table-scroll"><table class="plan">${buildPrintTableHtml(calc, y)}</table></div></div>`;
+    html += `<div class="print-page"><h2>Karriereplan &amp; Provisionsberechnung &mdash; Jahr ${y}</h2><div class="table-scroll"><table class="plan">${buildPrintTableHtml(calc, y)}</table></div><div class="print-footnote">${footnoteHtml}</div></div>`;
   }
   area.innerHTML = html;
   window.print();

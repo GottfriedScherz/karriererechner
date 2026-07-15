@@ -452,9 +452,9 @@
           <li><strong>Elite-Club-Bonus:</strong> Setzt voraus, dass Sie selbst die Team-Stufe RGS oder höher erreicht haben (Praxis-Stufe allein genügt nicht). Danach für alle Partner auf VBA-Stufe in der gesamten Struktur mit dem Basissatz von 1,50&nbsp;€/Einheit berechnet &ndash; ohne Prüfung einer zusätzlichen Club-Mitgliedschaft (Admirals-/Kapitäns-Club-Sätze von 1,75&ndash;2,00&nbsp;€ und die 36-Monats-Fensterregel für "neue Partner" wurden nicht berücksichtigt).</li>
           <li><strong>Förderprovision:</strong> Vereinfacht auf Basis der rollierenden 12-Monats-Gruppensumme (gesamte Struktur ab VBA) des laufenden Monats berechnet, ohne die reale Quartalsverzögerung und die 40&nbsp;%-Deckelung je direkter Struktur.</li>
           <li><strong>Leistungs-Bonus Praxis (ab P5/RD1):</strong> Der im Vorquartal ermittelte Quartalsbetrag (0,50&nbsp;€ bzw. 1,00&nbsp;€ je Einheit Netto Neu Eigen) wird vereinfacht gleichmäßig auf die 3 Monate des Folgequartals verteilt, statt &ndash; wie in der Praxis üblich &ndash; ggf. anders getaktet ausgezahlt zu werden. Die EQF-Bedingung (EQF Eigen der letzten 12 Monate ≤ 10) wird wie alle anderen EQF-Prüfungen in diesem Rechner nicht abgebildet.</li>
-          <li><strong>Differenzprovision (kaskadierend):</strong> Sie erhalten Differenzprovision nur auf Ihre <em>direkten</em> Partner (Betreuer&nbsp;=&nbsp;Ich), jeweils auf das Gesamtvolumen von dessen kompletter Unterstruktur. Zwischengeschaltete Partner erhalten ihrerseits ihre eigene Differenzprovision auf ihre direkte Unterstruktur &ndash; einsehbar über "Partner-Einkommen (Info)" bei diesem Partner. So wird jede Stufe der Struktur nur einmal vergütet.</li>
+          <li><strong>Differenzprovision (kaskadierend):</strong> Sie erhalten Differenzprovision nur auf Ihre <em>direkten</em> Partner (Betreuer&nbsp;=&nbsp;Ich), jeweils auf das Gesamtvolumen von dessen kompletter Unterstruktur. Zwischengeschaltete Partner erhalten ihrerseits rechnerisch ihre eigene Differenzprovision auf ihre direkte Unterstruktur, diese wird im Rechner jedoch nicht separat ausgewiesen. So wird jede Stufe der Struktur nur einmal vergütet.</li>
           <li><strong>Existenzgründer-Bonus:</strong> Zählt laut Vertriebsunterlagen NICHT zum Zukunftspaket, sondern gilt eigenständig für jede/-n neue/-n Agenturleiter/-in (bzw. höhere Stufe) in den ersten 36 Hauptberufsmonaten &ndash; daher als eigene Zeile ausgewiesen, getrennt vom "Zukunftspaket-Bonus".</li>
-          <li><strong>Erfolgsprovision:</strong> Wird auf Basis der Einheiten des jeweiligen Monats geprüft (statt des Durchschnitts der letzten 3 Monate gemäß Originalregel). Für Partner wird die Erfolgsprovision zusammen mit deren eigener Differenzprovision unter "Partner-Einkommen (Info)" ausgewiesen &ndash; das sind eigene Einkommen der Partner und fließen nicht in Ihr "Gesamt Monat" ein.</li>
+          <li><strong>Erfolgsprovision:</strong> Wird auf Basis der Einheiten des jeweiligen Monats geprüft (statt des Durchschnitts der letzten 3 Monate gemäß Originalregel). Das eigene Einkommen Ihrer Partner (deren Erfolgsprovision und eigene Differenzprovision) wird im Rechner nicht angezeigt &ndash; es fließt ohnehin nicht in Ihr "Gesamt Monat" ein.</li>
           <li><strong>GENERALI Neukundenbonus:</strong> Wird als Jahressumme berechnet und vereinfacht im letzten Monat (12/24/36/48) des jeweiligen Planjahres innerhalb des "Zukunftspaket-Bonus" angesetzt, statt laufend über das Jahr verteilt.</li>
           <li><strong>Alle Beträge sind Bruttoprovisionen</strong> vor Steuern und Sozialversicherung.</li>
           <li>Kundenbestands-, Karriere- und Beförderungsbonus (Zukunftspaket) werden nur für Ihre eigene Existenzgründerphase berechnet, nicht für die Ihrer Partner.</li>
@@ -535,8 +535,7 @@ let state = {
   partners: [], // {id, name, parentId (null=ich), startMonth, stageBP:{month:id}, unitsBP:{month:number}}
   zkExpanded: false,
   openInfo: {}, // key -> true/false, welche Info-Boxen aufgeklappt sind
-  partnerCollapsed: {}, // pid -> true/false, ob der Partner-Block eingeklappt ist
-  partnerIncomeOpen: {} // pid -> true/false, ob "Partner-Einkommen" aufgeklappt ist
+  partnerCollapsed: {} // pid -> true/false, ob der Partner-Block eingeklappt ist
 };
 let partnerSeq = 1;
 
@@ -544,15 +543,12 @@ const HIGH_TIER_IDS = ['P5','P6','P7','RD1','RD2','D'];
 
 const DESCRIPTIONS = {
   eigen: 'Ihre eigenen Einheiten zzgl. der Einheiten Ihrer direkten VM-Partner (inkl. deren evtl. vorhandener Unterstruktur), multipliziert mit Ihrem eigenen Provisionssatz (höherer Wert aus Team- und Praxisstufe).',
-  differenz: 'Kaskadierende Differenzprovision: Für jeden IHRER direkten Partner (Betreuer = Ich) ab Stufe VBA erhalten Sie Ihre Rate minus dessen Rate, multipliziert mit dem gesamten Volumen seiner Struktur (er selbst + seine komplette Unterstruktur). Zwischengeschaltete Partner erhalten ihrerseits ihre eigene Differenzprovision auf ihre direkte Unterstruktur – einsehbar über "Partner-Einkommen" bei diesem Partner. So wird jede Stufe nur einmal vergütet (keine Doppelzählung).',
+  differenz: 'Kaskadierende Differenzprovision: Für jeden IHRER direkten Partner (Betreuer = Ich) ab Stufe VBA erhalten Sie Ihre Rate minus dessen Rate, multipliziert mit dem gesamten Volumen seiner Struktur (er selbst + seine komplette Unterstruktur). Zwischengeschaltete Partner erhalten ihrerseits rechnerisch ihre eigene Differenzprovision auf ihre direkte Unterstruktur (im Rechner nicht separat angezeigt). So wird jede Stufe nur einmal vergütet (keine Doppelzählung).',
   ausbilder: 'Neue Agenturleiter/-innen in Ihrer Struktur: 4,00 €/Einheit direkt, 1,33 €/Einheit indirekt. Gilt in den ersten 36 Hauptberufsmonaten des jeweiligen Partners, sobald dieser kumuliert mind. 600 Einheiten Netto Neu Eigen erreicht hat.',
   eliteclub: 'Gibt es erst, sobald Sie selbst die Team-Stufe RGS oder höher erreicht haben (Praxis-Stufe allein zählt hier nicht). Dann für alle Partner auf VBA-Stufe in der gesamten Struktur (direkt und indirekt), Basissatz 1,50 €/Einheit (ohne Prüfung einer zusätzlichen Club-Mitgliedschaft; Admirals-/Kapitäns-Club-Sätze von 1,75–2,00 € nicht berücksichtigt).',
   foerder: 'Rollierende 12-Monats-Summe der Gruppeneinheiten (ab VBA, gesamte Struktur): ab 9.000 Einheiten 0,45 €/Einheit, ab 18.000 Einheiten 0,90 €/Einheit. Vereinfacht ohne Quartalsverzögerung und 40%-Deckelung.',
   leistungsbonus: 'Leistungs-Bonus Praxis: Für hauptberufliche Berater/-innen ab Stufe P5 (bzw. RD1). Wird je Quartal aus den Einheiten Netto Neu Eigen (Eigenumsatz) ermittelt und im Folgequartal monatlich ausgezahlt: ab 3.000 Einheiten 0,50 €/Einheit, ab 4.800 Einheiten 1,00 €/Einheit (Quartalsbetrag auf 3 Monate verteilt). Voraussetzung: mind. 750 Einheiten Netto Neu Eigen in den letzten 3 Monaten. EQF-Prüfung (EQF Eigen ≤ 10) wird wie an anderer Stelle nicht abgebildet.',
   erfolgSelf: 'Erfolgsprovision (Ihr eigenes Einkommen): Als VBA (erste 12 Monate, ab 100 Einheiten/Monat) 2,00 €/Einheit. Hauptberuflich ab AL 3,50 €/Einheit, sobald die Einheiten-Schwelle Ihrer Karrierephase erreicht ist (150/200/250 Einheiten je nach Zeit seit AL, 300 Einheiten ab P5/RD1).',
-  erfolgPartner: 'Erfolgsprovision dieses Partners – eigenes Einkommen des Partners, fließt nicht an Sie. Nur zur Information, nicht in "Gesamt Monat" enthalten.',
-  differenzPartner: 'Differenzprovision dieses Partners auf seine EIGENE direkte Unterstruktur (z. B. seine eigenen VBA) – eigenes Einkommen des Partners, fließt nicht an Sie. Nur zur Information, nicht in "Gesamt Monat" enthalten.',
-  partnerIncome: 'Zeigt das eigene Einkommen dieses Partners (Erfolgsprovision + seine eigene Differenzprovision auf seine Unterstruktur). Nur zur Information – fließt nicht in Ihr "Gesamt Monat" ein.',
   zukunftspaket: 'Summe aus GENERALI Neukundenbonus, GENERALI Existenzgründer-Bonus PLUS, Karrierebonus, Beförderungsbonus und Kundenbestandsbonus für Ihre eigene Existenzgründerphase. Der (nicht zum Zukunftspaket zählende) Existenzgründer-Bonus wird als eigene Zeile separat ausgewiesen. Zeile anklicken zum Aufklappen der Einzelposten.',
   exg: 'Existenzgründer-Bonus (unabhängig vom Zukunftspaket): 500 €/Monat für Sie als Agenturleiter/-in (bzw. höhere Stufe) in den ersten 36 Hauptberufsmonaten, sofern die Kriterien erfüllt sind (vereinfacht ohne die reale Einheiten-Staffel gemäß "Leistung lohnt sich").',
   exgplus: 'GENERALI Existenzgründer-Bonus PLUS (Zukunftspaket): 500 €/Monat (max. 1.500 €/Quartal), wenn im Quartal mind. 60 Einheiten erreicht werden (vereinfacht statt 20 Einheiten je Sparte einzeln).',
@@ -1055,29 +1051,6 @@ function buildPlanTableHtml(calc, year){
         else { html += `<td><input type="number" min="0" step="1" data-role="partnerUnits" data-pid="${p.id}" data-m="${m}" value="${pd.units[m]}"></td>`; }
       });
       html += '</tr>';
-
-      // Partner-Einkommen: aufklappbar (info-only, nicht in "Gesamt Monat")
-      const incOpen = !!state.partnerIncomeOpen[p.id];
-      html += `<tr class="partner-info-row"><td class="rowlabel"><div class="rowlabel-flex"><span><button type="button" class="expand-toggle" data-role="togglePartnerIncome" data-pid="${p.id}" title="Einzelposten anzeigen">${incOpen?'&#9660;':'&#9654;'}</button>&#8618; Partner-Einkommen (Info)</span><button type="button" class="infobtn" data-role="toggleInfo" data-key="partnerIncome" title="Erklärung anzeigen">i</button></div><div class="row-desc" id="info-partnerIncome" style="display:${!!state.openInfo['partnerIncome']?'block':'none'};">${DESCRIPTIONS.partnerIncome}</div></td>`;
-      months.forEach(m=>{
-        if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
-        else { html += `<td class="calc">${fmt(pd.erfolg[m]+pd.differenzOwn[m])} &euro;</td>`; }
-      });
-      html += '</tr>';
-      if(incOpen){
-        html += `<tr class="partner-info-row"><td class="rowlabel">${labelHtml('&nbsp;&nbsp;&#8618; Erfolgsprovision (Partner)', 'erfolgPartner')}</td>`;
-        months.forEach(m=>{
-          if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
-          else { html += `<td class="calc">${fmt(pd.erfolg[m])} &euro;</td>`; }
-        });
-        html += '</tr>';
-        html += `<tr class="partner-info-row"><td class="rowlabel">${labelHtml('&nbsp;&nbsp;&#8618; Differenzprovision (Partner)', 'differenzPartner')}</td>`;
-        months.forEach(m=>{
-          if(m<p.startMonth){ html += `<td class="empty">&ndash;</td>`; }
-          else { html += `<td class="calc">${fmt(pd.differenzOwn[m])} &euro;</td>`; }
-        });
-        html += '</tr>';
-      }
     }
   });
 
@@ -1339,13 +1312,6 @@ function bindTableEvents(table){
       renderAll();
     });
   });
-  table.querySelectorAll('[data-role="togglePartnerIncome"]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      const pid = parseInt(e.currentTarget.dataset.pid);
-      state.partnerIncomeOpen[pid] = !state.partnerIncomeOpen[pid];
-      renderAll();
-    });
-  });
 }
 
 function renderSummary(calc){
@@ -1390,13 +1356,6 @@ function renderSummary(calc){
   const tbl = document.getElementById('breakdownTable');
   tbl.innerHTML = rows.map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])} &euro;</td></tr>`).join('')
     + `<tr><td style="font-weight:900;color:var(--accent);">Jahressumme</td><td style="font-weight:900;color:var(--accent);">${fmt(calc.jahressumme[y])} &euro;</td></tr>`;
-
-  // Informativ: Summe des eigenen Einkommens aller Partner (fließt NICHT in Jahressumme)
-  let partnerIncomeSum = 0;
-  calc.partnerData.forEach(pd=>{ monthsY.forEach(m=> partnerIncomeSum += (pd.erfolg[m]||0)+(pd.differenzOwn[m]||0)); });
-  if(state.partners.length){
-    tbl.innerHTML += `<tr><td style="font-style:italic;color:var(--muted);">Eigenes Einkommen Ihrer Partner (Info, nicht in Jahressumme)</td><td style="font-style:italic;color:var(--muted);">${fmt(partnerIncomeSum)} &euro;</td></tr>`;
-  }
 }
 
 function renderAll(){

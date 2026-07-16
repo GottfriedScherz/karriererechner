@@ -452,7 +452,8 @@
           <li><strong>Elite-Club-Bonus:</strong> Setzt voraus, dass Sie selbst die Team-Stufe RGS oder höher erreicht haben (Praxis-Stufe allein genügt nicht). Danach für alle Partner auf VBA-Stufe in der gesamten Struktur mit dem Basissatz von 1,50&nbsp;€/Einheit berechnet &ndash; ohne Prüfung einer zusätzlichen Club-Mitgliedschaft (Admirals-/Kapitäns-Club-Sätze von 1,75&ndash;2,00&nbsp;€ und die 36-Monats-Fensterregel für "neue Partner" wurden nicht berücksichtigt).</li>
           <li><strong>Förderprovision:</strong> Vereinfacht auf Basis der rollierenden 12-Monats-Gruppensumme (gesamte Struktur ab VBA) des laufenden Monats berechnet, ohne die reale Quartalsverzögerung und die 40&nbsp;%-Deckelung je direkter Struktur.</li>
           <li><strong>Leistungs-Bonus Praxis (ab P5/RD1):</strong> Der im Vorquartal ermittelte Quartalsbetrag (0,50&nbsp;€ bzw. 1,00&nbsp;€ je Einheit Netto Neu Eigen) wird vereinfacht gleichmäßig auf die 3 Monate des Folgequartals verteilt, statt &ndash; wie in der Praxis üblich &ndash; ggf. anders getaktet ausgezahlt zu werden. Die EQF-Bedingung (EQF Eigen der letzten 12 Monate ≤ 10) wird wie alle anderen EQF-Prüfungen in diesem Rechner nicht abgebildet.</li>
-          <li><strong>Differenzprovision (kaskadierend):</strong> Sie erhalten Differenzprovision nur auf Ihre <em>direkten</em> Partner (Betreuer&nbsp;=&nbsp;Ich), jeweils auf das Gesamtvolumen von dessen kompletter Unterstruktur. Zwischengeschaltete Partner erhalten ihrerseits rechnerisch ihre eigene Differenzprovision auf ihre direkte Unterstruktur, diese wird im Rechner jedoch nicht separat ausgewiesen. So wird jede Stufe der Struktur nur einmal vergütet.</li>
+          <li><strong>Differenzprovision (kaskadierend):</strong> Sie erhalten Differenzprovision nur auf Ihre <em>direkten</em> Partner (Betreuer&nbsp;=&nbsp;Ich) &ndash; ab VM01 aufwärts &ndash;, jeweils auf das Gesamtvolumen von dessen kompletter Unterstruktur. Zwischengeschaltete Partner erhalten ihrerseits rechnerisch ihre eigene Differenzprovision auf ihre direkte Unterstruktur, diese wird im Rechner jedoch nicht separat ausgewiesen. So wird jede Stufe der Struktur nur einmal vergütet.</li>
+          <li><strong>Vertrauensmitarbeiter/-innen (VM01&ndash;VM03):</strong> Es gibt drei VM-Stufen mit je 1,00&nbsp;€ (VM01), 2,00&nbsp;€ (VM02) bzw. 3,00&nbsp;€ (VM03) Provisionssatz je Einheit. Deren Einheiten lösen KEINE eigene "Eigenprovision" zum vollen Satz mehr aus, sondern werden wie jeder andere direkte Partner über die normale (kaskadierende) Differenzprovision zum jeweiligen VM-Stufensatz vergütet. Zusätzlich zählen die Einheiten Ihrer direkten VM-Partner (inkl. deren evtl. vorhandener Unterstruktur) als eigene Einheiten für die Schwellenwerte und die Berechnung Ihrer Erfolgsprovision (3,50&nbsp;€/Einheit hauptberuflich bzw. 2,00&nbsp;€/Einheit als VBA) sowie des Leistungs-Bonus Praxis.</li>
           <li><strong>Existenzgründer-Bonus:</strong> Zählt laut Vertriebsunterlagen NICHT zum Zukunftspaket, sondern gilt eigenständig für jede/-n neue/-n Agenturleiter/-in (bzw. höhere Stufe) in den ersten 36 Hauptberufsmonaten &ndash; daher als eigene Zeile ausgewiesen, getrennt vom "Zukunftspaket-Bonus".</li>
           <li><strong>Erfolgsprovision:</strong> Wird auf Basis der Einheiten des jeweiligen Monats geprüft (statt des Durchschnitts der letzten 3 Monate gemäß Originalregel). Das eigene Einkommen Ihrer Partner (deren Erfolgsprovision und eigene Differenzprovision) wird im Rechner nicht angezeigt &ndash; es fließt ohnehin nicht in Ihr "Gesamt Monat" ein.</li>
           <li><strong>GENERALI Neukundenbonus:</strong> Wird als Jahressumme berechnet und vereinfacht im letzten Monat (12/24/36/48) des jeweiligen Planjahres innerhalb des "Zukunftspaket-Bonus" angesetzt, statt laufend über das Jahr verteilt.</li>
@@ -475,7 +476,9 @@
 const N = 48; // Planungshorizont in Monaten (4 Jahre)
 
 const STAGES = {
-  VM:  { label:'Vertrauensmitarbeiter/-in (VM)', rate:2.00, hauptberuf:false, ladder:'zweit' },
+  VM01:{ label:'Vertrauensmitarbeiter/-in 01 (VM01)', rate:1.00, hauptberuf:false, ladder:'zweit' },
+  VM02:{ label:'Vertrauensmitarbeiter/-in 02 (VM02)', rate:2.00, hauptberuf:false, ladder:'zweit' },
+  VM03:{ label:'Vertrauensmitarbeiter/-in 03 (VM03)', rate:3.00, hauptberuf:false, ladder:'zweit' },
   VBA: { label:'VB-Assistent/-in (VBA)',          rate:4.00, hauptberuf:false, ladder:'zweit' },
   AL:  { label:'Agenturleiter/-in (AL)',          rate:9.00, hauptberuf:true,  ladder:'team' },
   RGS: { label:'Regionalgeschäftsstellenleiter/-in (RGS)', rate:10.00, hauptberuf:true, ladder:'team' },
@@ -491,7 +494,9 @@ const STAGES = {
   P6:  { label:'Praxis 6 (P6)', rate:13.20, hauptberuf:true, ladder:'praxis' },
   P7:  { label:'Praxis 7 (P7)', rate:13.60, hauptberuf:true, ladder:'praxis' },
 };
-const TEAM_IDS = ['VM','VBA','AL','RGS','GS','HGS','RD1','RD2','D'];
+const TEAM_IDS = ['VM01','VM02','VM03','VBA','AL','RGS','GS','HGS','RD1','RD2','D'];
+const VM_IDS = ['VM01','VM02','VM03'];
+function isVM(stageId){ return VM_IDS.indexOf(stageId)>=0; }
 const PRAXIS_IDS = ['P2','P3','P4','P5','P6','P7'];
 const ALL_IDS = TEAM_IDS.concat(PRAXIS_IDS);
 
@@ -500,12 +505,27 @@ const BEFOERDERUNG  = { P2:600, P3:750, P4:900, RGS:1500, GS:3000, HGS:6000 };
 // Elite-Club-Bonus gibt es erst ab Team-Stufe RGS aufwärts (reine Team-Stufen-Prüfung)
 const ELITECLUB_MIN_TEAM_IDX = TEAM_IDS.indexOf('RGS');
 
-// Erfolgsprovision: VBA (Nebenberuf, erste 12 Monate) 2,00€/Einheit ab 100 Einheiten;
-// hauptberuflich ab AL 3,50€/Einheit ab Schwelle (150/200/250 nach Zeit seit AL, 300 ab P5/RD1)
-function erfolgsprovisionAmount(stageId, units, vbaMonat, hbMonat){
+// Erfolgsprovision: Basis ist NICHT der aktuelle Monat, sondern der gleitende Durchschnitt der
+// letzten bis zu 3 Monate (Fenster wächst erst auf 3 an: Monat 1 seit Beginn = Schnitt über 1
+// Monat, Monat 2 = Schnitt über 2 Monate, ab Monat 3 = echter 3-Monats-Schnitt). Gilt sowohl für
+// den Weg über VBA als auch für einen Direkteinstieg als Agenturleiter/-in (Zählung jeweils ab
+// Beginn der betreffenden Stufe). VBA (Nebenberuf, erste 12 Monate): 2,00€/Einheit ab
+// Schnitt 100 Einheiten; hauptberuflich ab AL: 3,50€/Einheit ab Schnitt-Schwelle (150/200/250
+// nach Zeit seit Hauptberuf-Beginn, 300 ab P5/RD1).
+function rollingAvgUnits(unitsArr, m, monateSeit){
+  if(!monateSeit || monateSeit<1) return 0;
+  const win = Math.min(3, monateSeit);
+  let s=0;
+  for(let k=0;k<win;k++) s += (unitsArr[m-k]||0);
+  return s/win;
+}
+function erfolgsprovisionAmount(stageId, unitsArr, m, vbaMonat, hbMonat){
   if(!stageId) return 0;
   if(stageId==='VBA'){
-    if(vbaMonat>=1 && vbaMonat<=12 && units>=100) return units*2.00;
+    if(vbaMonat>=1 && vbaMonat<=12){
+      const avg = rollingAvgUnits(unitsArr, m, vbaMonat);
+      if(avg>=100) return avg*2.00;
+    }
     return 0;
   }
   if(STAGES[stageId].hauptberuf){
@@ -514,7 +534,8 @@ function erfolgsprovisionAmount(stageId, units, vbaMonat, hbMonat){
     else if(hbMonat>36) threshold=250;
     else if(hbMonat>24) threshold=200;
     else threshold=150;
-    if(units>=threshold) return units*3.50;
+    const avg = rollingAvgUnits(unitsArr, m, hbMonat);
+    if(avg>=threshold) return avg*3.50;
   }
   return 0;
 }
@@ -542,13 +563,13 @@ let partnerSeq = 1;
 const HIGH_TIER_IDS = ['P5','P6','P7','RD1','RD2','D'];
 
 const DESCRIPTIONS = {
-  eigen: 'Ihre eigenen Einheiten zzgl. der Einheiten Ihrer direkten VM-Partner (inkl. deren evtl. vorhandener Unterstruktur), multipliziert mit Ihrem eigenen Provisionssatz (höherer Wert aus Team- und Praxisstufe).',
-  differenz: 'Kaskadierende Differenzprovision: Für jeden IHRER direkten Partner (Betreuer = Ich) ab Stufe VBA erhalten Sie Ihre Rate minus dessen Rate, multipliziert mit dem gesamten Volumen seiner Struktur (er selbst + seine komplette Unterstruktur). Zwischengeschaltete Partner erhalten ihrerseits rechnerisch ihre eigene Differenzprovision auf ihre direkte Unterstruktur (im Rechner nicht separat angezeigt). So wird jede Stufe nur einmal vergütet (keine Doppelzählung).',
+  eigen: 'Ausschließlich Ihre eigenen, persönlich erfassten Einheiten, multipliziert mit Ihrem eigenen Provisionssatz (höherer Wert aus Team- und Praxisstufe). Die Einheiten Ihrer VM01-03-Partner fließen NICHT hier hinein, sondern über die Differenzprovision (Geld) sowie zusätzlich als Einheiten-Basis in Ihre Erfolgsprovision.',
+  differenz: 'Kaskadierende Differenzprovision: Für jeden IHRER direkten Partner (Betreuer = Ich) – inkl. VM01-03 – erhalten Sie Ihre Rate minus dessen Rate, multipliziert mit dem gesamten Volumen seiner Struktur (er selbst + seine komplette Unterstruktur). Beispiel: Sie als AL (9,00 €) mit einem direkten VM02-Partner (2,00 €) erhalten 7,00 €/Einheit auf dessen Volumen. Zwischengeschaltete Partner erhalten ihrerseits rechnerisch ihre eigene Differenzprovision auf ihre direkte Unterstruktur (im Rechner nicht separat angezeigt). So wird jede Stufe nur einmal vergütet (keine Doppelzählung).',
   ausbilder: 'Neue Agenturleiter/-innen in Ihrer Struktur: 4,00 €/Einheit direkt, 1,33 €/Einheit indirekt. Gilt in den ersten 36 Hauptberufsmonaten des jeweiligen Partners, sobald dieser kumuliert mind. 600 Einheiten Netto Neu Eigen erreicht hat.',
   eliteclub: 'Gibt es erst, sobald Sie selbst die Team-Stufe RGS oder höher erreicht haben (Praxis-Stufe allein zählt hier nicht). Dann für alle Partner auf VBA-Stufe in der gesamten Struktur (direkt und indirekt), Basissatz 1,50 €/Einheit (ohne Prüfung einer zusätzlichen Club-Mitgliedschaft; Admirals-/Kapitäns-Club-Sätze von 1,75–2,00 € nicht berücksichtigt).',
   foerder: 'Rollierende 12-Monats-Summe der Gruppeneinheiten (ab VBA, gesamte Struktur): ab 9.000 Einheiten 0,45 €/Einheit, ab 18.000 Einheiten 0,90 €/Einheit. Vereinfacht ohne Quartalsverzögerung und 40%-Deckelung.',
-  leistungsbonus: 'Leistungs-Bonus Praxis: Für hauptberufliche Berater/-innen ab Stufe P5 (bzw. RD1). Wird je Quartal aus den Einheiten Netto Neu Eigen (Eigenumsatz) ermittelt und im Folgequartal monatlich ausgezahlt: ab 3.000 Einheiten 0,50 €/Einheit, ab 4.800 Einheiten 1,00 €/Einheit (Quartalsbetrag auf 3 Monate verteilt). Voraussetzung: mind. 750 Einheiten Netto Neu Eigen in den letzten 3 Monaten. EQF-Prüfung (EQF Eigen ≤ 10) wird wie an anderer Stelle nicht abgebildet.',
-  erfolgSelf: 'Erfolgsprovision (Ihr eigenes Einkommen): Als VBA (erste 12 Monate, ab 100 Einheiten/Monat) 2,00 €/Einheit. Hauptberuflich ab AL 3,50 €/Einheit, sobald die Einheiten-Schwelle Ihrer Karrierephase erreicht ist (150/200/250 Einheiten je nach Zeit seit AL, 300 Einheiten ab P5/RD1).',
+  leistungsbonus: 'Leistungs-Bonus Praxis: Für hauptberufliche Berater/-innen ab Stufe P5 (bzw. RD1). Wird je Quartal aus den Einheiten Netto Neu Eigen (Eigenumsatz, inkl. VM01-03-Zusatzeinheiten) ermittelt und im Folgequartal monatlich ausgezahlt: ab 3.000 Einheiten 0,50 €/Einheit, ab 4.800 Einheiten 1,00 €/Einheit (Quartalsbetrag auf 3 Monate verteilt). Voraussetzung: mind. 750 Einheiten Netto Neu Eigen in den letzten 3 Monaten. EQF-Prüfung (EQF Eigen ≤ 10) wird wie an anderer Stelle nicht abgebildet.',
+  erfolgSelf: 'Erfolgsprovision (Ihr eigenes Einkommen): Als VBA (erste 12 Monate, ab 100 Einheiten/Monat) 2,00 €/Einheit. Hauptberuflich ab AL 3,50 €/Einheit, sobald die Einheiten-Schwelle Ihrer Karrierephase erreicht ist (150/200/250 Einheiten je nach Zeit seit AL, 300 Einheiten ab P5/RD1). Basis sind Ihre eigenen Einheiten ZUZÜGLICH der Einheiten Ihrer direkten VM01-03-Partner (inkl. deren evtl. vorhandener Unterstruktur).',
   zukunftspaket: 'Summe aus GENERALI Neukundenbonus, GENERALI Existenzgründer-Bonus PLUS, Karrierebonus, Beförderungsbonus und Kundenbestandsbonus für Ihre eigene Existenzgründerphase. Der (nicht zum Zukunftspaket zählende) Existenzgründer-Bonus wird als eigene Zeile separat ausgewiesen. Zeile anklicken zum Aufklappen der Einzelposten.',
   exg: 'Existenzgründer-Bonus (unabhängig vom Zukunftspaket): 500 €/Monat für Sie als Agenturleiter/-in (bzw. höhere Stufe) in den ersten 36 Hauptberufsmonaten, sofern die Kriterien erfüllt sind (vereinfacht ohne die reale Einheiten-Staffel gemäß "Leistung lohnt sich").',
   exgplus: 'GENERALI Existenzgründer-Bonus PLUS (Zukunftspaket): 500 €/Monat (max. 1.500 €/Quartal), wenn im Quartal mind. 60 Einheiten erreicht werden (vereinfacht statt 20 Einheiten je Sparte einzeln).',
@@ -620,11 +641,6 @@ function compute(){
 
   let firstVBASelf=null;
   for(let m=1;m<=N;m++){ if(selfTeam[m]==='VBA'){ firstVBASelf=m; break; } }
-  const selfErfolg=[];
-  for(let m=1;m<=N;m++){
-    const vbaMonat = firstVBASelf && selfTeam[m]==='VBA' ? (m-firstVBASelf+1) : 0;
-    selfErfolg[m] = erfolgsprovisionAmount(selfEffStage[m], selfEinheiten[m], vbaMonat, selfHb[m]);
-  }
 
   // Partner-Arrays
   const partnerData = state.partners.map(p=>{
@@ -666,20 +682,33 @@ function compute(){
   const eigenZusatz=[], gruppenEinheiten=[], differenz=[], ausbilder=[], eliteClub=[];
   for(let m=1;m<=N;m++){ eigenZusatz[m]=0; gruppenEinheiten[m]=0; differenz[m]=0; ausbilder[m]=0; eliteClub[m]=0; }
 
-  // Eigenzusatz (VM) & Differenzprovision (ich): nur über MEINE direkten Partner,
-  // jeweils auf das Gesamtvolumen der jeweiligen Unterstruktur (kaskadierend, keine Doppelzählung)
+  // Differenzprovision (ich): über MEINE direkten Partner (inkl. VM01-03), jeweils auf das
+  // Gesamtvolumen der jeweiligen Unterstruktur, zum jeweiligen stufenspezifischen Satz
+  // (kaskadierend, keine Doppelzählung). VM-Einheiten zählen ZUSÄTZLICH als "eigene" Einheiten
+  // für die Erfolgsprovision- und Leistungsbonus-Schwelle des direkten Betreuers (eigenZusatz),
+  // lösen aber selbst KEINE Eigenprovision zum vollen Satz mehr aus (das läuft jetzt über die
+  // normale Differenzprovision zum VM-Stufensatz).
   for(let m=1;m<=N;m++){
     (childrenMap['self']||[]).forEach(pid=>{
       const pd = partnerById[pid];
       if(!pd || !pd.stage[m]) return;
       const vol = subtreeVolume(pid, m, new Set());
-      if(pd.stage[m]==='VM'){
-        eigenZusatz[m] += vol;
-      } else {
-        const childRate = STAGES[pd.stage[m]].rate;
-        differenz[m] += Math.max(0, selfRate[m]-childRate) * vol;
-      }
+      const childRate = STAGES[pd.stage[m]].rate;
+      differenz[m] += Math.max(0, selfRate[m]-childRate) * vol;
+      if(isVM(pd.stage[m])) eigenZusatz[m] += vol;
     });
+  }
+
+  // Erfolgsprovision (ich): Basis sind die eigenen Einheiten ZUZÜGLICH der Einheiten meiner
+  // direkten VM01-03-Partner (inkl. deren evtl. vorhandener Unterstruktur) – diese lösen bei
+  // mir als hauptberuflichem Partner 3,50 €/Einheit bzw. als VBA 2,00 €/Einheit Erfolgsprovision
+  // mit aus, sobald die jeweilige Schwelle erreicht ist.
+  const eigenEinheitenTotal=[];
+  for(let m=1;m<=N;m++) eigenEinheitenTotal[m] = selfEinheiten[m]+eigenZusatz[m];
+  const selfErfolg=[];
+  for(let m=1;m<=N;m++){
+    const vbaMonat = firstVBASelf && selfTeam[m]==='VBA' ? (m-firstVBASelf+1) : 0;
+    selfErfolg[m] = erfolgsprovisionAmount(selfEffStage[m], eigenEinheitenTotal, m, vbaMonat, selfHb[m]);
   }
 
   // Je Partner: eigenes Einkommen (Erfolgsprovision + eigene Differenzprovision auf seine
@@ -690,27 +719,31 @@ function compute(){
     const ausbilderRate = depth===1 ? 4.00 : 1.33; // direkt vs. indirekt (gesamte Struktur)
     pd.erfolg = [];
     pd.differenzOwn = [];
+    pd.erfolgBasis = []; // eigene Einheiten + VM-Zusatzeinheiten je Monat (Basis für den 3-Monats-Schnitt)
+    for(let m=1;m<=N;m++) pd.erfolgBasis[m]=0;
+
+    // 1. Durchlauf: Differenzprovision, Erfolgsprovision-Basis, sowie Ausbilder/Elite-Club/Gruppe
     for(let m=1;m<=N;m++){
       const st = pd.stage[m];
-      pd.erfolg[m]=0; pd.differenzOwn[m]=0;
+      pd.differenzOwn[m]=0;
       if(!st) continue;
       const units = pd.units[m];
-      // Erfolgsprovision des Partners selbst (eigenes Einkommen, fließt nicht an "ich")
-      const hbp = pd.firstHBp && m>=pd.firstHBp ? (m-pd.firstHBp+1) : 0;
-      const vbap = pd.firstVBAp && st==='VBA' ? (m-pd.firstVBAp+1) : 0;
-      pd.erfolg[m] = erfolgsprovisionAmount(st, units, vbap, hbp);
 
-      // Differenzprovision dieses Partners auf SEINE eigene direkte Unterstruktur
+      // Differenzprovision dieses Partners auf SEINE eigene direkte Unterstruktur (inkl. VM),
+      // sowie VM-Zusatzeinheiten für die eigene Erfolgsprovision-Schwelle dieses Partners
       const ownRate = STAGES[st].rate;
+      let ownVmZusatz = 0;
       (childrenMap[pd.p.id]||[]).forEach(kid=>{
         const kpd = partnerById[kid];
-        if(!kpd || !kpd.stage[m] || kpd.stage[m]==='VM') return;
+        if(!kpd || !kpd.stage[m]) return;
         const vol = subtreeVolume(kid, m, new Set());
         const childRate = STAGES[kpd.stage[m]].rate;
         pd.differenzOwn[m] += Math.max(0, ownRate-childRate) * vol;
+        if(isVM(kpd.stage[m])) ownVmZusatz += vol;
       });
+      pd.erfolgBasis[m] = units+ownVmZusatz;
 
-      if(st==='VM'){ continue; } // VM-Einheiten zählen als Eigenumsatz des jeweiligen Betreuers
+      if(isVM(st)){ continue; } // VM-Einheiten zählen als Eigenumsatz-Zusatz des jeweiligen Betreuers
       // ab VBA aufwärts: Gruppenumsatz (Basis für Förderprovision, strukturweit & unkaskadiert)
       gruppenEinheiten[m]+=units;
       // Elite-Club-Bonus: alle VBA in der gesamten Struktur (direkt + indirekt),
@@ -718,18 +751,29 @@ function compute(){
       if(st==='VBA' && TEAM_IDS.indexOf(selfTeam[m])>=ELITECLUB_MIN_TEAM_IDX){ eliteClub[m]+= units*1.50; }
       // Ausbilder-Bonus: neue AL (direkt + indirekt), erste 36 Monate ab AL, ab 600 kum. Einheiten
       if(STAGES[st].hauptberuf && pd.firstHBp){
+        const hbp = m>=pd.firstHBp ? (m-pd.firstHBp+1) : 0;
         cum+=units;
         if(hbp>=1 && hbp<=36 && cum>=600){
           ausbilder[m]+= units*ausbilderRate;
         }
       }
     }
+
+    // 2. Durchlauf: Erfolgsprovision dieses Partners auf Basis des 3-Monats-Schnitts von pd.erfolgBasis
+    for(let m=1;m<=N;m++){
+      const st = pd.stage[m];
+      if(!st){ pd.erfolg[m]=0; continue; }
+      const hbp = pd.firstHBp && m>=pd.firstHBp ? (m-pd.firstHBp+1) : 0;
+      const vbap = pd.firstVBAp && st==='VBA' ? (m-pd.firstVBAp+1) : 0;
+      pd.erfolg[m] = erfolgsprovisionAmount(st, pd.erfolgBasis, m, vbap, hbp);
+    }
   });
 
-  const eigenEinheitenTotal=[], eigenprovision=[];
+  // Eigenprovision (Geldbetrag): NUR die persönlich erfassten Einheiten, zum eigenen Satz.
+  // VM-Einheiten fließen als Geldbetrag über die Differenzprovision (s.o.), nicht hier zusätzlich.
+  const eigenprovision=[];
   for(let m=1;m<=N;m++){
-    eigenEinheitenTotal[m] = selfEinheiten[m]+eigenZusatz[m];
-    eigenprovision[m] = eigenEinheitenTotal[m]*selfRate[m];
+    eigenprovision[m] = selfEinheiten[m]*selfRate[m];
   }
 
   const foerder=[];
@@ -804,18 +848,18 @@ function compute(){
     return vol;
   }
   function computeCascadeGeneric(ownVolFn){
-    const selfEigenAdd=[], selfDiff=[];
+    const selfDiff=[];
     for(let m=1;m<=N;m++){
-      selfEigenAdd[m]=0; selfDiff[m]=0;
+      selfDiff[m]=0;
       (childrenMap['self']||[]).forEach(pid=>{
         const pd = partnerById[pid];
         if(!pd || !pd.stage[m]) return;
         const vol = subtreeVolumeGeneric(pid, m, new Set(), ownVolFn);
-        if(pd.stage[m]==='VM'){ selfEigenAdd[m]+=vol; }
-        else { const childRate=STAGES[pd.stage[m]].rate; selfDiff[m]+=Math.max(0, selfRate[m]-childRate)*vol; }
+        const childRate=STAGES[pd.stage[m]].rate;
+        selfDiff[m]+=Math.max(0, selfRate[m]-childRate)*vol;
       });
     }
-    return { selfEigenAdd, selfDiff };
+    return { selfDiff };
   }
   const investCascade = computeCascadeGeneric((pid,m)=>partnerInvestFolgeEinheiten[pid][m]);
   const sachCascade = computeCascadeGeneric((pid,m)=>partnerSachFolgeEinheiten[pid][m]);
@@ -824,13 +868,11 @@ function compute(){
   const folgeSachEigen=[], folgeSachGruppe=[], folgeSach=[];
   for(let m=1;m<=N;m++){
     const gate = STAGES[selfEffStage[m]].hauptberuf; // Folgeprovision gilt ab AL
-    const investEigenBase = selfInvestFolgeEinheiten[m] + investCascade.selfEigenAdd[m];
-    folgeInvestEigen[m] = gate ? investEigenBase*selfRate[m] : 0;
+    folgeInvestEigen[m] = gate ? selfInvestFolgeEinheiten[m]*selfRate[m] : 0;
     folgeInvestGruppe[m] = gate ? investCascade.selfDiff[m] : 0;
     folgeInvest[m] = folgeInvestEigen[m]+folgeInvestGruppe[m];
 
-    const sachEigenBase = selfSachFolgeEinheiten[m] + sachCascade.selfEigenAdd[m];
-    folgeSachEigen[m] = gate ? sachEigenBase*selfRate[m] : 0;
+    folgeSachEigen[m] = gate ? selfSachFolgeEinheiten[m]*selfRate[m] : 0;
     folgeSachGruppe[m] = gate ? sachCascade.selfDiff[m] : 0;
     folgeSach[m] = folgeSachEigen[m]+folgeSachGruppe[m];
   }
@@ -1246,7 +1288,7 @@ function bindTableEvents(table){
       const id = partnerSeq++;
       state.partners.push({
         id, name: 'Partner ' + id, parentId: null, startMonth: m,
-        stageBP: {[m]: 'VM'}, unitsBP: {[m]: 0}
+        stageBP: {[m]: 'VM01'}, unitsBP: {[m]: 0}
       });
       renderAll();
     });
